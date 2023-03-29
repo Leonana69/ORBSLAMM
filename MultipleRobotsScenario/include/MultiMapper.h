@@ -42,12 +42,12 @@ class MultiMapper
 public:
     typedef pair<Map*, KeyFrameDatabase*> MapAndKFDB;
     typedef map<Map*, LoopClosing*, std::less<Map*>,
-        Eigen::aligned_allocator<std::pair<const Map*, LoopClosing*> > > MapAndLoopCloser;
+        Eigen::aligned_allocator<std::pair<Map* const, LoopClosing*> > > MapAndLoopCloser;
     typedef pair<Map*, Tracking*> MapAndTracker;
     typedef map<Map*, LocalMapping*, std::less<Map*>,
-        Eigen::aligned_allocator<std::pair<const Map*, LocalMapping*> > > MapAndLocalMapper;
+        Eigen::aligned_allocator<std::pair<Map* const, LocalMapping*> > > MapAndLocalMapper;
     typedef map<KeyFrame*,g2o::Sim3,std::less<KeyFrame*>,
-        Eigen::aligned_allocator<std::pair<const KeyFrame*, g2o::Sim3> > > KeyFrameAndPose;
+        Eigen::aligned_allocator<std::pair<KeyFrame* const, g2o::Sim3> > > KeyFrameAndPose;
     
 public:
     MultiMapper();

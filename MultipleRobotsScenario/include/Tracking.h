@@ -41,6 +41,7 @@
 #include "MapSerializer.h"
 
 #include <mutex>
+#include <unistd.h>
 
 namespace iORB_SLAM
 {
