@@ -15,13 +15,6 @@ cd build
 cmake .. -DCMAKE_BUILD_TYPE=Release
 make -j
 
-cd ../../v4l2loopback
-
-echo "Configuring and building Thirdparty/v4l2loopback ..."
-
-make
-sudo make install
-
 cd ../../../
 
 echo "Uncompress vocabulary ..."
