@@ -111,3 +111,6 @@ add_executable(mono_NewCollege
 Examples/Monocular/mono_NewCollege.cc)
 target_link_libraries(mono_NewCollege ${PROJECT_NAME})
 
+add_executable(mono_duke_diff_seq
+Examples/Monocular/mono_duke_diff_seq.cc)
+target_link_libraries(mono_duke_diff_seq ${PROJECT_NAME})
