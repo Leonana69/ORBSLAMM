@@ -1,1 +1,1 @@
-./mono_duke_diff_seq ../../Vocabulary/ORBvoc.txt ./duke-orin.yaml /duke_drone/main ./duke-nuc.yaml /duke_drone/sub 1
+./mono_duke_diff_seq ../../Vocabulary/ORBvoc.txt ./duke-orin.yaml /duke_drone/orin ./duke-nuc.yaml /duke_drone/nuc 1
