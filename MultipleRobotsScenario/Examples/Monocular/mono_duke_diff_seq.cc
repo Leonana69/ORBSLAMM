@@ -53,10 +53,10 @@ int main(int argc, char **argv) {
     vector<double> vTimestamps2;
     LoadImages(string(argv[5]), vstrImageFilenames2, vTimestamps2);
     
-    bool bUseMMaps = string(argv[6]).compare("1") == 0；
+    bool bUseMMaps = string(argv[6]).compare("1") == 0;
     int nImages = vstrImageFilenames.size();
     int nImages2 = vstrImageFilenames2.size();
-    int start1 = 0, start2= 0;
+    int start1 = 0, start2 = 0;
     
     // Start time
     std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
