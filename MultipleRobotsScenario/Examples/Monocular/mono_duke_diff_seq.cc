@@ -48,48 +48,48 @@ int main(int argc, char **argv) {
     vector<string> vstrImageFilenames;
     vector<double> vTimestamps;
     LoadImages(string(argv[3]), vstrImageFilenames, vTimestamps);
-    
+
     vector<string> vstrImageFilenames2;
     vector<double> vTimestamps2;
     LoadImages(string(argv[5]), vstrImageFilenames2, vTimestamps2);
-    
+
     bool bUseMMaps = string(argv[6]).compare("1") == 0;
     int nImages = vstrImageFilenames.size();
     int nImages2 = vstrImageFilenames2.size();
     int start1 = 0, start2 = 0;
-    
+
     // Start time
     std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
 
     // Create the multi-mapper
     iORB_SLAM::MultiMapper* pMMapper = new iORB_SLAM::MultiMapper();
-    
+
     // Create SLAM system. It initializes all system threads and gets ready to process frames.
     iORB_SLAM::System SLAM(argv[1], argv[2], iORB_SLAM::System::MONOCULAR, true, bUseMMaps);
     // Assign the multi-mapper
     SLAM.SetMultiMapper(pMMapper);
     // Run the thread (Robot1)
     thread Run(RunSLAM, ref(start1), ref(nImages), ref(SLAM), ref(vstrImageFilenames), ref(vTimestamps));
-    
-    
+
+
     // Create the second SLAM system
     iORB_SLAM::System SLAM2(argv[1], argv[4], iORB_SLAM::System::MONOCULAR, false, bUseMMaps);
     // Assign the mutli-mapper
-    SLAM2.SetMultiMapper(pMMapper);  
+    SLAM2.SetMultiMapper(pMMapper);
     // Run the thread (Robot2)
     thread Run2(RunSLAM2, ref(start2), ref(nImages2), ref(SLAM2), ref(vstrImageFilenames2), ref(vTimestamps2));
     
     // Run the Multi-mapper thread
     std::thread* ptMultiMapping = new thread(&iORB_SLAM::MultiMapper::Run, pMMapper);
 
-    
+
     cout << endl << "-------" << endl;
     cout << "Start processing sequences ..." << endl;
     cout << "Images in the both sequences: " << nImages + nImages2 << endl << endl;
     Run.join();
     Run2.join();
     ptMultiMapping->join();
-    
+
     // End time
     std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
     // Duration
@@ -117,7 +117,6 @@ void LoadImages(const string &strPathToSequence, vector<string> &vstrImageFilena
     string strPrefixLeft = strPathToSequence + "/";
 
     const int nTimes = vTimestamps.size();
-    cout << "nTimes: " << nTimes << endl;
     vstrImageFilenames.resize(nTimes);
 
     for (int i = 0; i < nTimes; i++) {
@@ -131,7 +130,7 @@ void RunSLAM(int& start, int& nImages, iORB_SLAM::System& SLAM, vector<string>& 
     // Vector for tracking time statistics
     vector<float> vTimesTrack;
     vTimesTrack.resize(nImages);
-    
+
     // Main loop
     cv::Mat im;
     for (int ni = start; ni < nImages; ni++) {
@@ -191,15 +190,15 @@ void RunSLAM(int& start, int& nImages, iORB_SLAM::System& SLAM, vector<string>& 
     string date;
     struct timeval tv;
     struct tm* tm_info;
-    
+
     gettimeofday(&tv, NULL);
     tm_info = localtime(&tv.tv_sec);
-    
+
     char time_s[26];
     strftime(time_s, 26, "%Y:%m:%d %H:%M:%S", tm_info);
-    
+
     date = time_s;
-    
+
     // Save camera trajectory
     SLAM.SaveTrajectoryKITTI("KeyFrameTrajectory_kitti" + date + ".txt");
     SLAM.SaveKeyFrameTrajectoryTUM("KeyFrameTrajectory" + date + ".txt");
@@ -210,7 +209,7 @@ void RunSLAM2(int& start, int& nImages, iORB_SLAM::System& SLAM, vector<string>&
     // Vector for tracking time statistics
     vector<float> vTimesTrack;
     vTimesTrack.resize(nImages);
-    
+
     // Main loop
     cv::Mat im;
     for (int ni = start; ni < nImages; ni++) {
@@ -272,12 +271,12 @@ void RunSLAM2(int& start, int& nImages, iORB_SLAM::System& SLAM, vector<string>&
     
     gettimeofday(&tv,NULL);
     tm_info = localtime(&tv.tv_sec);
-    
+
     char time_s[26];
     strftime(time_s, 26, "%Y:%m:%d %H:%M:%S", tm_info);
-    
+
     date = time_s;
-    
+
     // Save camera trajectory
     SLAM.SaveTrajectoryKITTI("KeyFrameTrajectory_kitti" + date + ".txt");
     //SLAM.SaveKeyFrameTrajectoryTUM("KeyFrameTrajectory"+date+".txt");
