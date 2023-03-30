@@ -117,6 +117,7 @@ void LoadImages(const string &strPathToSequence, vector<string> &vstrImageFilena
     string strPrefixLeft = strPathToSequence + "/";
 
     const int nTimes = vTimestamps.size();
+    cout << "nTimes: " << nTimes << endl;
     vstrImageFilenames.resize(nTimes);
 
     for (int i = 0; i < nTimes; i++) {
