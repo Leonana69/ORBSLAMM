@@ -1,0 +1,12 @@
+build
+
+*.cmd
+*.ko
+*.mod
+*.o
+
+Module.symvers
+modules.order
+*.mod.c
+
+ORBvoc.txt
