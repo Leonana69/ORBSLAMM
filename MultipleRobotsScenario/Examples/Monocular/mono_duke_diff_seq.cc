@@ -56,6 +56,10 @@ int main(int argc, char **argv) {
     bool bUseMMaps = string(argv[6]).compare("1") == 0;
     int nImages = vstrImageFilenames.size();
     int nImages2 = vstrImageFilenames2.size();
+
+    cout << "Number of images in sequence 1: " << nImages << endl;
+    cout << "Number of images in sequence 2: " << nImages2 << endl;
+
     int start1 = 0, start2 = 0;
 
     // Start time
