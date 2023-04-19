@@ -75,7 +75,7 @@ public:
     void SaveTrajectory(const string& filename);
     void SaveMapTrajectory(Map* pMap, const string& filename);
 
-    std::vector<Map*> GetAllMapsAndKeyFrameDatabase();
+    std::vector<MapAndKFDB> GetAllMapsAndKeyFrameDatabase();
 
     void clear();
 
