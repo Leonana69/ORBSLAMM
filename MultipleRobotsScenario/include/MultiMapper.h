@@ -68,7 +68,7 @@ public:
     void SetVocabulary(ORBVocabulary* pVoc);
 
     void RequestReset();
-    void RequestFinish();
+    void RequestFinish(int mpMapCount);
     bool isFinished();
     bool GetmbUpdatingMapPoses();
 

@@ -84,6 +84,7 @@ System::System(ORBVocabulary* pVocabulary, const string& cameraSettingFile,
 
     // Create the Map
     mpMap = new Map(0);
+    mpMapCount = 1;
 
     // Create New MultiMapper - It also create LoopCloser Thread and Launch
     // mpMMapper = new MultiMapper(mpMap, mpKeyFrameDatabase, mpVocabulary);
@@ -421,7 +422,7 @@ bool System::IsUsingMMaps() { return mbUseMMapping; }
 void System::Shutdown()
 {
     cout << "Shutting down SLAM System\n";
-    mpMMapper->RequestFinish();
+    mpMMapper->RequestFinish(mpMapCount);
     mpLocalMapper->RequestFinish();
     mpLoopCloser->RequestFinish();
 
@@ -613,7 +614,11 @@ System::MapStatus System::SaveMap(const string& filename)
     return MAP_OK;
 }
 
-void System::SwitchMap(Map* pMap) { mpMap = pMap; }
+void System::SwitchMap(Map* pMap)
+{
+    mpMap = pMap;
+    mpMapCount++;
+}
 
 // Use the new created KF Database after tracking is lost
 void System::SwitchKFDB(KeyFrameDatabase* pKFDB) { mpKeyFrameDatabase = pKFDB; }

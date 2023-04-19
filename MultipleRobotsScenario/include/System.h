@@ -143,6 +143,8 @@ private:
 
     // Map structure that stores the pointers to all KeyFrames and MapPoints.
     Map* mpMap;
+    // Map count
+    int mpMapCount;
 
     // Multi Mapper that reads maps from different robots/rests and join them in one global map.
     MultiMapper* mpMMapper;

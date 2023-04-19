@@ -19,27 +19,23 @@
 */
 
 #include "Tracking.h"
-
-#include <opencv2/core/core.hpp>
-#include <opencv2/features2d/features2d.hpp>
-
 #include "ORBmatcher.h"
 #include "FrameDrawer.h"
 #include "Converter.h"
 #include "Map.h"
 #include "Initializer.h"
-
 #include "Optimizer.h"
 #include "PnPsolver.h"
 
 #include <iostream>
-
 #include <mutex>
+
+#include <opencv2/core/core.hpp>
+#include <opencv2/features2d/features2d.hpp>
 
 using namespace std;
 
 namespace iORB_SLAM {
-
 Tracking::Tracking(System* pSys, ORBVocabulary* pVoc, FrameDrawer* pFrameDrawer, MapDrawer* pMapDrawer, Map* pMap, MultiMapper* pMMapper,
     MapSerializer* pMapSerializer, KeyFrameDatabase* pKFDB, const string& strSettingPath, const int sensor, bool bMMapping)
     : mState(NO_IMAGES_YET)
@@ -310,18 +306,11 @@ void Tracking::Track()
                 }
             }
             else {
-
                 if (mbMMapping) // && !bOK)
                 {
-                    //Saving map to xml file, for test purposes
-                    //mpMapSerializer->SaveMap(mpMap, ".");
-
                     if (!mpMMapper->GetmbUpdatingMapPoses() && !mpLoopClosing->GetmbRunningLoopClosing()) {
-                        //Create a new map (a new pointer to new MPs and KFs)
+                        // Create a new map (a new pointer to new MPs and KFs)
                         mpMap = new Map(mpMap->mnNxtId);
-                        //                        mpMap->mpLocalMapper = mpLocalMapper;
-                        //                        mpMap->mpLoopCloser = mpLoopClosing;
-
                         mpKeyFrameDB = new KeyFrameDatabase(*mpORBVocabulary);
 
                         mpSystem->SwitchMap(mpMap);

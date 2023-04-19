@@ -828,10 +828,10 @@ void MultiMapper::SetVocabulary(ORBVocabulary* pVoc)
         mpORBVocabulary = pVoc;
 }
 
-void MultiMapper::RequestFinish()
+void MultiMapper::RequestFinish(int mpMapCount)
 {
     unique_lock<mutex> lock(mMutexFinish);
-    mnFinishRequests++;
+    mnFinishRequests += mpMapCount;
     cout << "Finish Requests = " << mnFinishRequests << " - SLAM Systems = " << mnMapCount << endl;
 }
 
