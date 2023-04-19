@@ -18,7 +18,6 @@
 * along with ORBSLAMM. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #include <iostream>
 #include <algorithm>
 #include <fstream>
@@ -34,16 +33,17 @@
 
 using namespace std;
 
-void LoadImages(const string &strSequence, vector<string> &vstrImageFilenames, vector<double> &vTimestamps);
-void RunSLAM(int& start, int& nImages, iORB_SLAM::System& SLAM, vector<string>& vstrImageFilenames, vector<double>& vTimestamps);
+void LoadImages(const string& strSequence, vector<string>& vstrImageFilenames, vector<double>& vTimestamps);
+void RunSLAM1(int& start, int& nImages, iORB_SLAM::System& SLAM, vector<string>& vstrImageFilenames, vector<double>& vTimestamps);
 void RunSLAM2(int& start, int& nImages, iORB_SLAM::System& SLAM, vector<string>& vstrImageFilenames, vector<double>& vTimestamps);
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv)
+{
     if (argc < 7) {
-        cerr << endl << "Usage: ./mono_duke_diff_seq path_to_vocabulary path_to_settings_of_sequence1 path_to_sequence1 path_to_settings_of_sequence2 path_to_sequence2 [0|1]for_Multi_Maps_Usage" << endl;
+        cerr << endl
+             << "Usage: ./mono_duke_diff_seq path_to_vocabulary path_to_settings_of_sequence1 path_to_sequence1 path_to_settings_of_sequence2 path_to_sequence2 [0|1]for_Multi_Maps_Usage" << endl;
         return 1;
     }
-
     // Retrieve paths to images
     vector<string> vstrImageFilenames;
     vector<double> vTimestamps;
@@ -73,8 +73,7 @@ int main(int argc, char **argv) {
     // Assign the multi-mapper
     SLAM.SetMultiMapper(pMMapper);
     // Run the thread (Robot1)
-    thread Run(RunSLAM, ref(start1), ref(nImages), ref(SLAM), ref(vstrImageFilenames), ref(vTimestamps));
-
+    thread Run1(RunSLAM1, ref(start1), ref(nImages), ref(SLAM), ref(vstrImageFilenames), ref(vTimestamps));
 
     // Create the second SLAM system
     iORB_SLAM::System SLAM2(argv[1], argv[4], iORB_SLAM::System::MONOCULAR, false, bUseMMaps);
@@ -82,15 +81,16 @@ int main(int argc, char **argv) {
     SLAM2.SetMultiMapper(pMMapper);
     // Run the thread (Robot2)
     thread Run2(RunSLAM2, ref(start2), ref(nImages2), ref(SLAM2), ref(vstrImageFilenames2), ref(vTimestamps2));
-    
+
     // Run the Multi-mapper thread
     std::thread* ptMultiMapping = new thread(&iORB_SLAM::MultiMapper::Run, pMMapper);
 
-
-    cout << endl << "-------" << endl;
+    cout << endl
+         << "-------" << endl;
     cout << "Start processing sequences ..." << endl;
-    cout << "Images in the both sequences: " << nImages + nImages2 << endl << endl;
-    Run.join();
+    cout << "Images in the both sequences: " << nImages + nImages2 << endl
+         << endl;
+    Run1.join();
     Run2.join();
     ptMultiMapping->join();
 
@@ -102,13 +102,14 @@ int main(int argc, char **argv) {
     return 0;
 }
 
-void LoadImages(const string &strPathToSequence, vector<string> &vstrImageFilenames, vector<double> &vTimestamps) {
+void LoadImages(const string& strPathToSequence, vector<string>& vstrImageFilenames, vector<double>& vTimestamps)
+{
     ifstream fTimes;
     string strPathTimeFile = strPathToSequence + "/times.txt";
     fTimes.open(strPathTimeFile.c_str());
     while (!fTimes.eof()) {
         string s;
-        getline(fTimes,s);
+        getline(fTimes, s);
         if (!s.empty()) {
             stringstream ss;
             ss << s;
@@ -130,86 +131,30 @@ void LoadImages(const string &strPathToSequence, vector<string> &vstrImageFilena
     }
 }
 
-void RunSLAM(int& start, int& nImages, iORB_SLAM::System& SLAM, vector<string>& vstrImageFilenames, vector<double>& vTimestamps) {
-    // Vector for tracking time statistics
-    vector<float> vTimesTrack;
-    vTimesTrack.resize(nImages);
+void RunSLAM1(int& start, int& nImages, iORB_SLAM::System& SLAM, vector<string>& vstrImageFilenames, vector<double>& vTimestamps)
+{
+    ExecuteSLAM(start, nImages, SLAM, vstrImageFilenames, vTimestamps);
 
-    // Main loop
-    cv::Mat im;
-    for (int ni = start; ni < nImages; ni++) {
-        // Read image from file
-        im = cv::imread(vstrImageFilenames[ni], CV_LOAD_IMAGE_UNCHANGED);
-        double tframe = vTimestamps[ni];
-
-        if (im.empty()) {
-            cerr << endl << "Failed to load image at: " << vstrImageFilenames[ni] << endl;
-            return;
-        }
-
-#ifdef COMPILEDWITHC11
-        std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
-#else
-        std::chrono::monotonic_clock::time_point t1 = std::chrono::monotonic_clock::now();
-#endif
-
-        // Pass the image to the SLAM system
-        SLAM.TrackMonocular(im,tframe);
-
-#ifdef COMPILEDWITHC11
-        std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
-#else
-        std::chrono::monotonic_clock::time_point t2 = std::chrono::monotonic_clock::now();
-#endif
-
-        double ttrack = std::chrono::duration_cast<std::chrono::duration<double> >(t2 - t1).count();
-
-        vTimesTrack[ni] = ttrack;
-
-        // Wait to load the next frame
-        double T = 0;
-        if (ni < nImages - 1)
-            T = vTimestamps[ni + 1] - tframe;
-        else if (ni > 0)
-            T = tframe - vTimestamps[ni - 1];
-
-        if (ttrack < T)
-            usleep((T - ttrack) * 1e6);
-    }
-
-    // Stop all threads
-    SLAM.Shutdown();
-
-    // Tracking time statistics
-    sort(vTimesTrack.begin(),vTimesTrack.end());
-    float totaltime = 0;
-    for (int ni = 0; ni < nImages; ni++) {
-        totaltime += vTimesTrack[ni];
-    }
-
-    cout << "-------" << endl << endl;
-    cout << "median tracking time: " << vTimesTrack[nImages / 2] << endl;
-    cout << "mean tracking time: " << totaltime/nImages << endl;
-
-    string date;
     struct timeval tv;
     struct tm* tm_info;
-
     gettimeofday(&tv, NULL);
     tm_info = localtime(&tv.tv_sec);
 
     char time_s[26];
     strftime(time_s, 26, "%Y:%m:%d %H:%M:%S", tm_info);
-
-    date = time_s;
-
     // Save camera trajectory
-    SLAM.SaveTrajectoryKITTI("KeyFrameTrajectory_kitti" + date + ".txt");
-    SLAM.SaveKeyFrameTrajectoryTUM("KeyFrameTrajectory" + date + ".txt");
-    SLAM.SaveMultipleMapsTrajectories("Maps" + date + ".txt");
+    // SLAM.SaveTrajectoryKITTI("KeyFrameTrajectory_kitti" + string(time_s) + ".txt");
+    SLAM.SaveKeyFrameTrajectoryTUM("KeyFrameTrajectory" + string(time_s) + ".txt");
+    SLAM.SaveMultipleMapsTrajectories("Maps" + string(time_s) + ".txt");
 }
 
-void RunSLAM2(int& start, int& nImages, iORB_SLAM::System& SLAM, vector<string>& vstrImageFilenames, vector<double>& vTimestamps) {
+void RunSLAM2(int& start, int& nImages, iORB_SLAM::System& SLAM, vector<string>& vstrImageFilenames, vector<double>& vTimestamps)
+{
+    ExecuteSLAM(start, nImages, SLAM, vstrImageFilenames, vTimestamps);
+}
+
+void ExecuteSLAM(int& start, int& nImages, iORB_SLAM::System& SLAM, vector<string>& vstrImageFilenames, vector<double>& vTimestamps)
+{
     // Vector for tracking time statistics
     vector<float> vTimesTrack;
     vTimesTrack.resize(nImages);
@@ -222,7 +167,8 @@ void RunSLAM2(int& start, int& nImages, iORB_SLAM::System& SLAM, vector<string>&
         double tframe = vTimestamps[ni];
 
         if (im.empty()) {
-            cerr << endl << "Failed to load image at: " << vstrImageFilenames[ni] << endl;
+            cerr << endl
+                 << "Failed to load image at: " << vstrImageFilenames[ni] << endl;
             return;
         }
 
@@ -233,7 +179,7 @@ void RunSLAM2(int& start, int& nImages, iORB_SLAM::System& SLAM, vector<string>&
 #endif
 
         // Pass the image to the SLAM system
-        SLAM.TrackMonocular(im,tframe);
+        SLAM.TrackMonocular(im, tframe);
 
 #ifdef COMPILEDWITHC11
         std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
@@ -265,24 +211,8 @@ void RunSLAM2(int& start, int& nImages, iORB_SLAM::System& SLAM, vector<string>&
     for (int ni = 0; ni < nImages; ni++) {
         totaltime += vTimesTrack[ni];
     }
-    cout << "-------" << endl << endl;
+    cout << "-------" << endl
+         << endl;
     cout << "median tracking time: " << vTimesTrack[nImages / 2] << endl;
-    cout << "mean tracking time: " << totaltime/nImages << endl;
-
-    string date;
-    struct timeval tv;
-    struct tm* tm_info;
-    
-    gettimeofday(&tv,NULL);
-    tm_info = localtime(&tv.tv_sec);
-
-    char time_s[26];
-    strftime(time_s, 26, "%Y:%m:%d %H:%M:%S", tm_info);
-
-    date = time_s;
-
-    // Save camera trajectory
-    SLAM.SaveTrajectoryKITTI("KeyFrameTrajectory_kitti" + date + ".txt");
-    //SLAM.SaveKeyFrameTrajectoryTUM("KeyFrameTrajectory"+date+".txt");
-    //SLAM.SaveMultipleMapsTrajectories("Maps"+date+".txt");
+    cout << "mean tracking time: " << totaltime / nImages << endl;
 }
