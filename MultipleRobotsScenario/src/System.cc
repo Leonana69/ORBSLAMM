@@ -38,7 +38,6 @@ System::System(const string& strVocFile, const string& cameraSettingFile,
     , mbDeactivateLocalizationMode(false)
     , mbUseMMapping(bUseMMapping)
 {
-    systemCount++;
     // Output welcome message
     cout << endl
          << "ORBSLAMM Copyright (C) 2016-2017 Hayyan Daoud, University of Malaya."

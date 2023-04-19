@@ -66,8 +66,8 @@ Viewer::Viewer(System* pSystem, FrameDrawer* pFrameDrawer, MapDrawer* pMapDrawer
         systemName = "ORB-SLAM2";
     }
 
-    MapViewerName = systemName + ": Map Viewer - " + std::to_string(System::systemCount);
-    FrameWindowName = systemName + ": Frame Viewer - " + std::to_string(System::systemCount);;
+    MapViewerName = systemName + ": Map Viewer - " + cameraSettingFile;
+    FrameWindowName = systemName + ": Frame Viewer - " + cameraSettingFile;;
 }
 
 void Viewer::Run()
