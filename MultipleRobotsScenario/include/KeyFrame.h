@@ -31,23 +31,19 @@
 
 #include <mutex>
 
-
-namespace iORB_SLAM
-{
+namespace iORB_SLAM {
 
 class Map;
 class MapPoint;
 class Frame;
 class KeyFrameDatabase;
 
-class KeyFrame
-{
+class KeyFrame {
 public:
-    KeyFrame(Frame &F, Map* pMap, KeyFrameDatabase* pKFDB);
-//    KeyFrame();
+    KeyFrame(Frame& F, Map* pMap, KeyFrameDatabase* pKFDB);
 
     // Pose functions
-    void SetPose(const cv::Mat &Tcw);
+    void SetPose(const cv::Mat& Tcw);
     cv::Mat GetPose();
     cv::Mat GetPoseInverse();
     cv::Mat GetCameraCenter();
@@ -59,14 +55,14 @@ public:
     void ComputeBoW();
 
     // Covisibility graph functions
-    void AddConnection(KeyFrame* pKF, const int &weight);
+    void AddConnection(KeyFrame* pKF, const int& weight);
     void EraseConnection(KeyFrame* pKF);
     void UpdateConnections();
     void UpdateBestCovisibles();
-    std::set<KeyFrame *> GetConnectedKeyFrames();
-    std::vector<KeyFrame* > GetVectorCovisibleKeyFrames();
-    std::vector<KeyFrame*> GetBestCovisibilityKeyFrames(const int &N);
-    std::vector<KeyFrame*> GetCovisiblesByWeight(const int &w);
+    std::set<KeyFrame*> GetConnectedKeyFrames();
+    std::vector<KeyFrame*> GetVectorCovisibleKeyFrames();
+    std::vector<KeyFrame*> GetBestCovisibilityKeyFrames(const int& N);
+    std::vector<KeyFrame*> GetCovisiblesByWeight(const int& w);
     int GetWeight(KeyFrame* pKF);
 
     // Spanning tree functions
@@ -82,21 +78,21 @@ public:
     std::set<KeyFrame*> GetLoopEdges();
 
     // MapPoint observation functions
-    void AddMapPoint(MapPoint* pMP, const size_t &idx);
-    void EraseMapPointMatch(const size_t &idx);
+    void AddMapPoint(MapPoint* pMP, const size_t& idx);
+    void EraseMapPointMatch(const size_t& idx);
     void EraseMapPointMatch(MapPoint* pMP);
-    void ReplaceMapPointMatch(const size_t &idx, MapPoint* pMP);
+    void ReplaceMapPointMatch(const size_t& idx, MapPoint* pMP);
     std::set<MapPoint*> GetMapPoints();
     std::vector<MapPoint*> GetMapPointMatches();
-    int TrackedMapPoints(const int &minObs);
-    MapPoint* GetMapPoint(const size_t &idx);
+    int TrackedMapPoints(const int& minObs);
+    MapPoint* GetMapPoint(const size_t& idx);
 
     // KeyPoint functions
-    std::vector<size_t> GetFeaturesInArea(const float &x, const float  &y, const float  &r) const;
+    std::vector<size_t> GetFeaturesInArea(const float& x, const float& y, const float& r) const;
     cv::Mat UnprojectStereo(int i);
 
     // Image
-    bool IsInImage(const float &x, const float &y) const;
+    bool IsInImage(const float& x, const float& y) const;
 
     // Enable/Disable bad flag changes
     void SetNotErase();
@@ -105,11 +101,11 @@ public:
     // Set/check bad flag
     void SetBadFlag();
     bool isBad();
-    
+
     //This to prevent deleting the first keyframe in subsequent maps
     void SetOtherMapFirst();
     bool isOtherMapFirst();
-    
+
     //When merged with other Maps only one first keyframe is fixed in GBA
     void SetNotFixed();
     bool isNotFixed();
@@ -117,29 +113,29 @@ public:
     // Compute Scene Depth (q=2 median). Used in monocular.
     float ComputeSceneMedianDepth(const int q);
 
-    static bool weightComp( int a, int b){
-        return a>b;
+    static bool weightComp(int a, int b)
+    {
+        return a > b;
     }
 
-    static bool lId(KeyFrame* pKF1, KeyFrame* pKF2){
-        return pKF1->mnId<pKF2->mnId;
+    static bool lId(KeyFrame* pKF1, KeyFrame* pKF2)
+    {
+        return pKF1->mnId < pKF2->mnId;
     }
-    
+
     void SwitchMap(Map* pMap);
     void SwitchKFDB(KeyFrameDatabase* pKFDB);
-    
-    Frame* getSourceFrame();
-    
-    Map* GetMap();
-    
-    //Use FileStorage to write Keyframe to xml instead of TinyXml
-//    void write(cv::FileStorage& fs) const;
-//    void read(const cv::FileNode& node);
 
+    Frame* getSourceFrame();
+
+    Map* GetMap();
+
+    //Use FileStorage to write Keyframe to xml instead of TinyXml
+    //    void write(cv::FileStorage& fs) const;
+    //    void read(const cv::FileNode& node);
 
     // The following variables are accesed from only 1 thread or never change (no mutex needed).
 public:
-
     static long unsigned int nNextId;
     long unsigned int mnId;
     const long unsigned int mnFrameId;
@@ -209,10 +205,8 @@ public:
     const int mnMaxY;
     const cv::Mat mK;
 
-
     // The following variables need to be accessed trough a mutex to be thread safe.
 protected:
-    
     Frame* mpFrame;
 
     // SE3 Pose and camera center
@@ -230,9 +224,9 @@ protected:
     ORBVocabulary* mpORBvocabulary;
 
     // Grid over the image to speed up feature matching
-    std::vector< std::vector <std::vector<size_t> > > mGrid;
+    std::vector<std::vector<std::vector<size_t> > > mGrid;
 
-    std::map<KeyFrame*,int> mConnectedKeyFrameWeights;
+    std::map<KeyFrame*, int> mConnectedKeyFrameWeights;
     std::vector<KeyFrame*> mvpOrderedConnectedKeyFrames;
     std::vector<int> mvOrderedWeights;
 
@@ -245,15 +239,15 @@ protected:
     // Bad flags
     bool mbNotErase;
     bool mbToBeErased;
-    bool mbBad;    
+    bool mbBad;
 
     //In MultiMappig, when tracking is lost no resetting of mnId. This is used to prevent deleting the first Keyframe of each map.
     bool mbOtherMapFirst;
-    
+
     bool mbNotFixed;
-    
-    float mHalfBaseline; // Only for visualization    
-    
+
+    float mHalfBaseline; // Only for visualization
+
     Map* mpMap;
 
     std::mutex mMutexPose;

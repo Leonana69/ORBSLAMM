@@ -25,20 +25,16 @@
 #include "Map.h"
 #include "LoopClosing.h"
 #include "Tracking.h"
-#include "KeyFrameDatabase.h"
 
 #include <mutex>
 
-
-namespace iORB_SLAM
-{
+namespace iORB_SLAM {
 
 class Tracking;
 class LoopClosing;
 class Map;
 
-class LocalMapping
-{
+class LocalMapping {
 public:
     LocalMapping(Map* pMap, const float bMonocular);
 
@@ -67,15 +63,15 @@ public:
     void RequestFinish();
     bool isFinished();
 
-    int KeyframesInQueue(){
+    int KeyframesInQueue()
+    {
         unique_lock<std::mutex> lock(mMutexNewKFs);
         return mlNewKeyFrames.size();
     }
-    
+
     void SwitchMap(Map* pMap);
 
 protected:
-
     bool CheckNewKeyFrames();
     void ProcessNewKeyFrame();
     void CreateNewMapPoints();
@@ -85,9 +81,9 @@ protected:
 
     void KeyFrameCulling();
 
-    cv::Mat ComputeF12(KeyFrame* &pKF1, KeyFrame* &pKF2);
+    cv::Mat ComputeF12(KeyFrame*& pKF1, KeyFrame*& pKF2);
 
-    cv::Mat SkewSymmetricMatrix(const cv::Mat &v);
+    cv::Mat SkewSymmetricMatrix(const cv::Mat& v);
 
     bool mbMonocular;
 
