@@ -21,42 +21,39 @@
 #include "Map.h"
 #include "Sim3Solver.h"
 
-#include<mutex>
+#include <mutex>
 
-namespace iORB_SLAM
-{
+namespace iORB_SLAM {
 
-Map::Map(unsigned int Id = 0):mnMaxKFid(0),mnMaxMPid(0),mbIsAttached(false)
+Map::Map(unsigned int Id = 0)
+    : mnMaxKFid(0)
+    , mnMaxMPid(0)
+    , mbIsAttached(false)
 {
     mnId = Id;
     mnNxtId = Id + 1;
 }
 
-
-void Map::AddKeyFrame(KeyFrame *pKF)
+void Map::AddKeyFrame(KeyFrame* pKF)
 {
     unique_lock<mutex> lock(mMutexMap);
     mspKeyFrames.insert(pKF);
     mpLastKF = pKF;
-    
-    if(!mpFirstKF)
-        mpFirstKF = pKF;
 
-        
-    if(pKF->mnId>mnMaxKFid)
-        mnMaxKFid=pKF->mnId;
+    if (pKF->mnId > mnMaxKFid)
+        mnMaxKFid = pKF->mnId;
 }
 
-void Map::AddMapPoint(MapPoint *pMP)
+void Map::AddMapPoint(MapPoint* pMP)
 {
     unique_lock<mutex> lock(mMutexMap);
-
     mspMapPoints.insert(pMP);
-    if(pMP->mnId > mnMaxMPid)
+    
+    if (pMP->mnId > mnMaxMPid)
         mnMaxMPid = pMP->mnId;
 }
 
-void Map::EraseMapPoint(MapPoint *pMP)
+void Map::EraseMapPoint(MapPoint* pMP)
 {
     unique_lock<mutex> lock(mMutexMap);
     mspMapPoints.erase(pMP);
@@ -65,7 +62,7 @@ void Map::EraseMapPoint(MapPoint *pMP)
     // Delete the MapPoint
 }
 
-void Map::EraseKeyFrame(KeyFrame *pKF)
+void Map::EraseKeyFrame(KeyFrame* pKF)
 {
     unique_lock<mutex> lock(mMutexMap);
     mspKeyFrames.erase(pKF);
@@ -74,7 +71,7 @@ void Map::EraseKeyFrame(KeyFrame *pKF)
     // Delete the MapPoint
 }
 
-void Map::SetReferenceMapPoints(const vector<MapPoint *> &vpMPs)
+void Map::SetReferenceMapPoints(const vector<MapPoint*>& vpMPs)
 {
     unique_lock<mutex> lock(mMutexMap);
     mvpReferenceMapPoints = vpMPs;
@@ -83,21 +80,19 @@ void Map::SetReferenceMapPoints(const vector<MapPoint *> &vpMPs)
 vector<KeyFrame*> Map::GetAllKeyFrames()
 {
     unique_lock<mutex> lock(mMutexMap);
-    return vector<KeyFrame*>(mspKeyFrames.begin(),mspKeyFrames.end());
+    return vector<KeyFrame*>(mspKeyFrames.begin(), mspKeyFrames.end());
 }
 
 vector<KeyFrame*> Map::MMGetAllKeyFrames()
 {
     unique_lock<mutex> lock(mMutexMap);
-    vector<KeyFrame*> vpKFs = vector<KeyFrame*>(mspKeyFrames.begin(),mspKeyFrames.end());
-    if(this->isAttached())
-    {
+    vector<KeyFrame*> vpKFs = vector<KeyFrame*>(mspKeyFrames.begin(), mspKeyFrames.end());
+    if (this->isAttached()) {
         vector<Map*> vpAttachedMaps = this->getAttachedMaps();
-        for(std::vector<Map*>::iterator it = vpAttachedMaps.begin(), itend = vpAttachedMaps.end(); it != itend; it++)
-        {
+        for (std::vector<Map *>::iterator it = vpAttachedMaps.begin(), itend = vpAttachedMaps.end(); it != itend; it++) {
             Map* pmMap = *it;
-            vector<KeyFrame*> vpAttachedKFs = pmMap->GetAllKeyFrames();            
-            vpKFs.insert(vpKFs.end(), vpAttachedKFs.begin(), vpAttachedKFs.end());            
+            vector<KeyFrame*> vpAttachedKFs = pmMap->GetAllKeyFrames();
+            vpKFs.insert(vpKFs.end(), vpAttachedKFs.begin(), vpAttachedKFs.end());
         }
     }
     return vpKFs;
@@ -107,44 +102,38 @@ std::vector<KeyFrame*> Map::GetAllKeyFramesAfter(KeyFrame* pKF)
 {
     std::vector<KeyFrame*> vKeyFrames = GetAllKeyFrames();
     std::vector<KeyFrame*> vKeyFramesResult;
-    for(std::vector<KeyFrame*>::iterator KFit = vKeyFrames.begin(), KFitEnd=vKeyFrames.end(); KFit != KFitEnd; KFit++)
-    {
+    for (std::vector<KeyFrame *>::iterator KFit = vKeyFrames.begin(), KFitEnd = vKeyFrames.end(); KFit != KFitEnd; KFit++) {
         KeyFrame* pKFi = *KFit;
-        if(pKFi->mnId > pKF->mnId)
-        {
+        if (pKFi->mnId > pKF->mnId) {
             vKeyFramesResult.push_back(pKFi);
         }
     }
-    
+
     return vKeyFramesResult;
-
 }
-
 
 vector<MapPoint*> Map::GetAllMapPoints()
 {
     unique_lock<mutex> lock(mMutexMap);
-    return vector<MapPoint*>(mspMapPoints.begin(),mspMapPoints.end());
+    return vector<MapPoint*>(mspMapPoints.begin(), mspMapPoints.end());
 }
 
 vector<MapPoint*> Map::MMGetAllMapPoints()
 {
     unique_lock<mutex> lock(mMutexMap);
-    vector<MapPoint*> vpMP = vector<MapPoint*>(mspMapPoints.begin(),mspMapPoints.end());
-    if(this->isAttached())
-    {
+    vector<MapPoint*> vpMP = vector<MapPoint*>(mspMapPoints.begin(), mspMapPoints.end());
+    if (this->isAttached()) {
         vector<Map*> vpAttachedMaps = this->getAttachedMaps();
-        for(std::vector<Map*>::iterator it = vpAttachedMaps.begin(), itend = vpAttachedMaps.end(); it != itend; it++)
-        {
+        for (std::vector<Map *>::iterator it = vpAttachedMaps.begin(), itend = vpAttachedMaps.end(); it != itend; it++) {
             Map* pmMap = *it;
-           
+
             vector<MapPoint*> vpAttachedMPs = pmMap->GetAllMapPoints();
-            
+
             vpMP.insert(vpMP.end(), vpAttachedMPs.begin(), vpAttachedMPs.end());
         }
     }
 
-return vpMP;
+    return vpMP;
 }
 
 long unsigned int Map::MapPointsInMap()
@@ -185,10 +174,10 @@ long unsigned int Map::GetMaxMPid()
 
 void Map::clear()
 {
-    for(set<MapPoint*>::iterator sit=mspMapPoints.begin(), send=mspMapPoints.end(); sit!=send; sit++)
+    for (set<MapPoint *>::iterator sit = mspMapPoints.begin(), send = mspMapPoints.end(); sit != send; sit++)
         delete *sit;
 
-    for(set<KeyFrame*>::iterator sit=mspKeyFrames.begin(), send=mspKeyFrames.end(); sit!=send; sit++)
+    for (set<KeyFrame *>::iterator sit = mspKeyFrames.begin(), send = mspKeyFrames.end(); sit != send; sit++)
         delete *sit;
 
     mspMapPoints.clear();
@@ -202,7 +191,6 @@ void Map::attachToMap(Map* pMap, g2o::Sim3 Pose)
 {
     mbIsAttached = true;
     mRelativePoses[pMap] = Pose;
-        
 }
 
 bool Map::isAttachedToMap(Map* pMap)
@@ -215,45 +203,42 @@ bool Map::isAttached()
     return mbIsAttached;
 }
 
-std::vector<Map*> Map::getAttachedMaps() 
+std::vector<Map*> Map::getAttachedMaps()
 {
     std::vector<Map*> vMaps;
-    
-    for(std::map<Map*, g2o::Sim3>::iterator it = mRelativePoses.begin(), itend=mRelativePoses.end(); it!=itend; it++)
+
+    for (std::map<Map *, g2o::Sim3>::iterator it = mRelativePoses.begin(), itend = mRelativePoses.end(); it != itend; it++)
         vMaps.push_back(it->first);
-    
+
     return vMaps;
 }
 
 g2o::Sim3 Map::relativePoseToAttachedMap(Map* pMap)
 {
-    if(this->isAttachedToMap(pMap))
+    if (this->isAttachedToMap(pMap))
         return mRelativePoses[pMap];
-    
+
     return g2o::Sim3();
 }
 
-
-
 void Map::printAttachedMaps()
 {
-    cout<<"Map"<<this->mnId<<" relative poses: \n";
-    for(std::map<Map*, g2o::Sim3>::iterator it = mRelativePoses.begin(), itend=mRelativePoses.end(); it!=itend; it++)
-    {
+    cout << "Map" << this->mnId << " relative poses: \n";
+    for (std::map<Map *, g2o::Sim3>::iterator it = mRelativePoses.begin(), itend = mRelativePoses.end(); it != itend; it++) {
         Map* pMap = it->first;
         cv::Mat pose = Converter::toCvMat(it->second);
-        cout<<pMap->mnId<<endl;
-        cout<<pose<<endl;
-        cout<<"-----\n";
+        cout << pMap->mnId << endl;
+        cout << pose << endl;
+        cout << "-----\n";
     }
-    cout<<"---------------------------------\n";
+    cout << "---------------------------------\n";
 }
 
 //Use FileStorage to write Maps to xml instead of TinyXml
 //void Map::write(cv::FileStorage& fs) const
 //{
 //    fs<< "{" << "KeyFrames";
-//    //write the mspKeyFrames 
+//    //write the mspKeyFrames
 //    for(set<KeyFrame*>::iterator sit=mspKeyFrames.begin(), send=mspKeyFrames.end(); sit!=send; sit++)
 //    {
 //        KeyFrame* pKFi=*sit;
@@ -270,6 +255,5 @@ void Map::printAttachedMaps()
 //
 //    fs<< "}";
 //}
-
 
 } //namespace iORB_SLAM

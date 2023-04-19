@@ -47,25 +47,21 @@
 
 #include <mutex>
 
+namespace iORB_SLAM {
 
-
-namespace iORB_SLAM
-{
-    
 class MapPoint;
 class KeyFrame;
 
-class Map
-{
+class Map {
 public:
     Map(unsigned int id);
-    Map(const Map &map);
+    Map(const Map& map);
 
     void AddKeyFrame(KeyFrame* pKF);
     void AddMapPoint(MapPoint* pMP);
     void EraseMapPoint(MapPoint* pMP);
     void EraseKeyFrame(KeyFrame* pKF);
-    void SetReferenceMapPoints(const std::vector<MapPoint*> &vpMPs);
+    void SetReferenceMapPoints(const std::vector<MapPoint*>& vpMPs);
 
     std::vector<KeyFrame*> GetAllKeyFrames();
     std::vector<MapPoint*> GetAllMapPoints();
@@ -75,7 +71,7 @@ public:
     std::vector<KeyFrame*> GetAllKeyFramesAfter(KeyFrame* pKF);
 
     long unsigned int MapPointsInMap();
-    long unsigned  KeyFramesInMap();
+    long unsigned KeyFramesInMap();
 
     void setMaxKFid(long unsigned int Id);
     long unsigned int GetMaxKFid();
@@ -89,27 +85,26 @@ public:
 
     // This avoid that two points are created simultaneously in separate threads (id conflict)
     std::mutex mMutexPointCreation;
-    
+
     unsigned int mnId; // For MultiMapper use
     unsigned int mnNxtId;
     Map* mpMatchedMap;
-    KeyFrame* mpMatchingKF;//in the current map
+    KeyFrame* mpMatchingKF; //in the current map
     KeyFrame* mpMatchedKF; // in the matched map
     KeyFrame* mpLastKF;
-    KeyFrame* mpFirstKF;
-    
-//    LocalMapping* mpLocalMapper; //This is used in Multi-robot scenario. It's initialized in tracking thread
-//    LoopClosing* mpLoopCloser;
-    
-    //Use FileStorage to write to xml file instead of TinyXml
+
+    //    LocalMapping* mpLocalMapper; //This is used in Multi-robot scenario. It's initialized in tracking thread
+    //    LoopClosing* mpLoopCloser;
+
+    // Use FileStorage to write to xml file instead of TinyXml
     void write(cv::FileStorage& fs) const;
     void read(const cv::FileNode& node);
-    
-    //Used for multimapping
+
+    // Used for multimapping
     void attachToMap(Map* pMap, g2o::Sim3 relativePose);
     std::vector<Map*> getAttachedMaps();
     g2o::Sim3 relativePoseToAttachedMap(Map* pMap);
-    
+
     bool isAttachedToMap(Map* pMap);
     bool isAttached();
     void printAttachedMaps();
@@ -119,9 +114,9 @@ protected:
     std::set<KeyFrame*> mspKeyFrames;
 
     std::vector<MapPoint*> mvpReferenceMapPoints;
-    
-    //Relative poses between this map and matched maps
-    std::map<Map*,g2o::Sim3> mRelativePoses;
+
+    // Relative poses between this map and matched maps
+    std::map<Map*, g2o::Sim3> mRelativePoses;
 
     long unsigned int mnMaxKFid;
     long unsigned int mnMaxMPid;
