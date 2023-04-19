@@ -49,11 +49,13 @@ void MapDrawer::DrawMapPoints()
     if (vpMPs.empty())
         return;
 
+    // draw map points
     glPointSize(mPointSize);
     glBegin(GL_POINTS);
     glColor3f(0.0, 0.0, 0.0);
 
     for (size_t i = 0, iend = vpMPs.size(); i < iend; i++) {
+        // if map point is bad or it's a reference map point, skip it
         if (vpMPs[i]->isBad() || spRefMPs.count(vpMPs[i]))
             continue;
         cv::Mat pos = vpMPs[i]->GetWorldPos();
@@ -61,6 +63,7 @@ void MapDrawer::DrawMapPoints()
     }
     glEnd();
 
+    // draw reference map points
     glPointSize(mPointSize);
     glBegin(GL_POINTS);
     glColor3f(1.0, 0.0, 0.0);
