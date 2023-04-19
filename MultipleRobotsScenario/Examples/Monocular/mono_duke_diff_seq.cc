@@ -34,6 +34,7 @@
 using namespace std;
 
 void LoadImages(const string& strSequence, vector<string>& vstrImageFilenames, vector<double>& vTimestamps);
+void ExecuteSLAM(int& start, int& nImages, iORB_SLAM::System& SLAM, vector<string>& vstrImageFilenames, vector<double>& vTimestamps);
 void RunSLAM1(int& start, int& nImages, iORB_SLAM::System& SLAM, vector<string>& vstrImageFilenames, vector<double>& vTimestamps);
 void RunSLAM2(int& start, int& nImages, iORB_SLAM::System& SLAM, vector<string>& vstrImageFilenames, vector<double>& vTimestamps);
 
