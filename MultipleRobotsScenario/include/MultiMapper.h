@@ -83,7 +83,7 @@ public:
     bool mbClosingLoop;
 
 protected:
-    bool CheckNewMap();
+    bool hasCandidates();
 
     bool DetectLoop();
 
@@ -100,12 +100,6 @@ protected:
     //MultiMapper will close when all SLAM systems request to
     int mnFinishRequests;
 
-    LocalMapping* mpLocalMapper;
-    Tracking* mpTracker;
-
-    LoopClosing* mpLoopCloser;
-    std::thread* mptLoopClosing;
-
     std::vector<MapAndKFDB> mvMapAndKFDB;
     unsigned int mnMapCount;
 
@@ -119,7 +113,7 @@ protected:
     std::mutex mMutexFinish;
     bool mbUpdatingMapPoses;
 
-    std::mutex mMutexLoopQueue;
+    std::mutex mMutexMapAndKFDB;
 
     bool mbMatchedBefore;
     bool mbSwapped;

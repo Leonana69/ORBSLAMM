@@ -30,6 +30,7 @@ namespace iORB_SLAM {
 
 MultiMapper::MultiMapper()
     : mnFinishRequests(0)
+    , mpORBVocabulary(NULL)
     , mnMapCount(0)
 {}
 
@@ -41,7 +42,7 @@ void MultiMapper::Run()
     mbUpdatingMapPoses = false;
     while (1) {
         // Check if there are Maps in the queue
-        if (CheckNewMap()) {
+        if (hasCandidates()) {
             mbClosingLoop = true;
             // Detect loop candidates and check covisibility consistency
             if (DetectLoop()) {
@@ -62,9 +63,9 @@ void MultiMapper::Run()
     SetFinish();
 }
 
-bool MultiMapper::CheckNewMap()
+bool MultiMapper::hasCandidates()
 {
-    unique_lock<mutex> lock(mMutexLoopQueue);
+    unique_lock<mutex> lock(mMutexMapAndKFDB);
     return (!mvMapAndKFDB.empty());
 }
 
@@ -74,13 +75,14 @@ bool MultiMapper::DetectLoop()
         Map* pMapBase = mvMapAndKFDB[iM].first;
         KeyFrameDatabase* pKFDB = mvMapAndKFDB[iM].second;
 
+        // compare with all the following maps
         for (size_t iiM = iM + 1, iiendM = mvMapAndKFDB.size(); iiM < iiendM; iiM++) {
             Map* pMap;
             std::vector<KeyFrame*> vpKeyFrames;
 
             {
-                unique_lock<mutex> lock(mMutexLoopQueue);
-                pMap = mvMapAndKFDB.at(iiM).first;
+                unique_lock<mutex> lock(mMutexMapAndKFDB);
+                pMap = mvMapAndKFDB[iiM].first;
                 vpKeyFrames = pMap->GetAllKeyFrames();
             }
 
@@ -705,7 +707,7 @@ void MultiMapper::MergeMaps(Map* pMap, Map* pMapBase)
 //Maybe I will need to remove the pointer and pass by value - solved by switchMap approach
 void MultiMapper::AddMap(Map* pMap, KeyFrameDatabase* pKeyFrameDB)
 {
-    unique_lock<mutex> lock(mMutexLoopQueue);
+    unique_lock<mutex> lock(mMutexMapAndKFDB);
 
     if (pMap->mnId < mnMapCount) {
         pMap->mnId = mnMapCount;
@@ -734,7 +736,7 @@ void MultiMapper::EraseMap(Map* pMap)
 
 void MultiMapper::SaveTrajectory(const string& filename)
 {
-    unique_lock<mutex> lock(mMutexLoopQueue);
+    unique_lock<mutex> lock(mMutexMapAndKFDB);
     cout << "\nSaving " << mnMapCount << " maps by their keyframes trajectories to " << filename << " ..." << endl;
 
     ofstream f;
@@ -805,7 +807,6 @@ void MultiMapper::SaveMapTrajectory(Map* pMap, const string& filename)
 
 void MultiMapper::SetLoopCloser(Map* pMap, LoopClosing* pLoopCloser)
 {
-    //        mpLoopCloser = pLoopCloser;
     //        MapAndLoopCloser mapCloser = make_pair(pMap, pLoopCloser);
     //        mvMapsLoopClosers.push_back(mapCloser);
     mMapsLoopClosers[pMap] = pLoopCloser;
@@ -813,14 +814,12 @@ void MultiMapper::SetLoopCloser(Map* pMap, LoopClosing* pLoopCloser)
 
 void MultiMapper::SetTracker(Map* pMap, Tracking* pTracker)
 {
-    //        mpTracker=pTracker;
     MapAndTracker mapTracker = make_pair(pMap, pTracker);
     mvMapsTrackers.push_back(mapTracker);
 }
 
 void MultiMapper::SetLocalMapper(Map* pMap, LocalMapping* pLocalMapper)
 {
-    //        mpLocalMapper=pLocalMapper;
     //        MapAndLocalMapper mapMapper = make_pair(pMap, pLocalMapper);
     //        mvMapsLocalMappers.push_back(mapMapper);
     mMapsLocalMappers[pMap] = pLocalMapper;
@@ -828,7 +827,9 @@ void MultiMapper::SetLocalMapper(Map* pMap, LocalMapping* pLocalMapper)
 
 void MultiMapper::SetVocabulary(ORBVocabulary* pVoc)
 {
-    mpORBVocabulary = pVoc;
+    // all maps share the same vocabulary
+    if (mpORBVocabulary == NULL)
+        mpORBVocabulary = pVoc;
 }
 
 void MultiMapper::RequestFinish()
