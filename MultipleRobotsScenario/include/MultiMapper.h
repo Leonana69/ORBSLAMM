@@ -80,8 +80,6 @@ public:
     vector<Map*> mvpMapOrigins;
     std::mutex mMutexMuliMapUpdate;
 
-    bool mbClosingLoop;
-
 protected:
     bool hasCandidates();
 

@@ -43,7 +43,6 @@ void MultiMapper::Run()
     while (1) {
         // Check if there are Maps in the queue
         if (hasCandidates()) {
-            mbClosingLoop = true;
             // Detect loop candidates and check covisibility consistency
             if (DetectLoop()) {
                 //                    cout<<"MM Loop Detected!\n";
@@ -51,7 +50,6 @@ void MultiMapper::Run()
             }
         }
 
-        mbClosingLoop = false;
         ResetIfRequested();
 
         if (CheckFinish())

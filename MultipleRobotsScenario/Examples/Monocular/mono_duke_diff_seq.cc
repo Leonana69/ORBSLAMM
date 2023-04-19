@@ -70,7 +70,7 @@ int main(int argc, char** argv)
     iORB_SLAM::MultiMapper* pMMapper = new iORB_SLAM::MultiMapper();
 
     // Create SLAM system. It initializes all system threads and gets ready to process frames.
-    iORB_SLAM::System SLAM1(argv[1], argv[2], iORB_SLAM::System::MONOCULAR, false, bUseMMaps);
+    iORB_SLAM::System SLAM1(argv[1], argv[2], iORB_SLAM::System::MONOCULAR, true, bUseMMaps);
     // Assign the multi-mapper
     SLAM1.SetMultiMapper(pMMapper);
     // Run the thread (Robot1)
