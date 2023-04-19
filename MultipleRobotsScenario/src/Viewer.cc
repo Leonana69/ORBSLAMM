@@ -22,6 +22,7 @@
 #include <pangolin/pangolin.h>
 
 #include <mutex>
+#include <format>
 
 namespace iORB_SLAM {
 
@@ -56,15 +57,17 @@ Viewer::Viewer(System* pSystem, FrameDrawer* pFrameDrawer, MapDrawer* pMapDrawer
     mViewpointZ = fSettings["Viewer.ViewpointZ"];
     mViewpointF = fSettings["Viewer.ViewpointF"];
 
+    string systemName;
     if (mpSystem->IsUsingMMaps()) {
         mbMutliMapping = true;
-        MapViewerName = "ORBSLAMM: Map Viewer";
-        FrameWindowName = "ORBSLAMM: Current Frame";
+        systemName = "ORB-SLAMM";
     }
     else {
-        MapViewerName = "ORB-SLAM2: Map Viewer";
-        FrameWindowName = "ORB-SLAM2: Current Frame";
+        systemName = "ORB-SLAM2";
     }
+
+    MapViewerName = std::format("%s: Map Viewer (%d)", systemName, pSystem->systemCount);
+    FrameWindowName = std::format("%s: Current Frame (%d)", systemName, pSystem->systemCount);
 }
 
 void Viewer::Run()
@@ -72,7 +75,9 @@ void Viewer::Run()
     mbFinished = false;
     mbRunning = true;
 
-    pangolin::CreateWindowAndBind(MapViewerName, 1024, 768);
+    int w = 1280;
+    int h = 768;
+    pangolin::CreateWindowAndBind(MapViewerName, w, h);
 
     // 3D Mouse handler requires depth testing to be enabled
     glEnable(GL_DEPTH_TEST);
@@ -92,12 +97,12 @@ void Viewer::Run()
 
     // Define Camera Render Object (for view / scene browsing)
     pangolin::OpenGlRenderState s_cam(
-        pangolin::ProjectionMatrix(1024, 768, mViewpointF, mViewpointF, 512, 389, 0.1, 1000),
+        pangolin::ProjectionMatrix(w, h, mViewpointF, mViewpointF, w / 2, h / 4, 0.1, 1000),
         pangolin::ModelViewLookAt(mViewpointX, mViewpointY, mViewpointZ, 0, 0, 0, 0.0, -1.0, 0.0));
 
     // Add named OpenGL viewport to window and provide 3D Handler
     pangolin::View& d_cam = pangolin::CreateDisplay()
-                                .SetBounds(0.0, 1.0, pangolin::Attach::Pix(175), 1.0, -1024.0f / 768.0f)
+                                .SetBounds(0.0, 1.0, pangolin::Attach::Pix(175), 1.0, -(float)w / (float)h)
                                 .SetHandler(new pangolin::Handler3D(s_cam));
 
     pangolin::OpenGlMatrix Twc;

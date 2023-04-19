@@ -63,12 +63,12 @@ public:
         MAP_EXISTS
     };
 
+    static int systemCount = 0;
 public:
     // Initialize the SLAM system. It launches the Local Mapping, Loop Closing and Viewer threads.
     //System(const string &strVocFile, const string &cameraSettingFile, const eSensor sensor, const bool bUseViewer = true);
     System(const string& strVocFile, const string& cameraSettingFile, const eSensor sensor, const bool bUseViewer = true, const bool bUseMMapping = false);
-    System(ORBVocabulary* pVocabulary, const string& cameraSettingFile, const eSensor sensor, const bool bUseViewer = true, const bool bUseMMapping = false);
-
+    
     // Proccess the given stereo frame. Images must be synchronized and rectified.
     // Input images: RGB (CV_8UC3) or grayscale (CV_8U). RGB is converted to grayscale.
     // Returns the camera pose (empty if tracking fails).

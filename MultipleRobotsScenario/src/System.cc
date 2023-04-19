@@ -28,117 +28,6 @@
 
 namespace iORB_SLAM {
 
-System::System(ORBVocabulary* pVocabulary, const string& cameraSettingFile,
-    const eSensor sensor, const bool bUseViewer,
-    const bool bUseMMapping)
-    : mSensor(sensor)
-    , mMapStatus(MAP_OK)
-    , mbReset(false)
-    , mbActivateLocalizationMode(false)
-    , mbDeactivateLocalizationMode(false)
-    , mbUseMMapping(bUseMMapping)
-{
-    // Output welcome message
-    cout << endl
-         << "ORBSLAMM Copyright (C) 2016-2017 Hayyan Daoud, University of Malaya."
-         << endl
-         << "This program comes with ABSOLUTELY NO WARRANTY;" << endl
-         << "This is free software, and you are welcome to redistribute it"
-         << endl
-         << "under certain conditions. See LICENSE.txt." << endl
-         << endl;
-
-    cout << "Input sensor was set to: ";
-
-    if (mSensor == MONOCULAR)
-        cout << "Monocular" << endl;
-    else if (mSensor == STEREO)
-        cout << "Stereo" << endl;
-    else if (mSensor == RGBD)
-        cout << "RGB-D" << endl;
-
-    // Check settings file
-    cv::FileStorage fsSettings(cameraSettingFile.c_str(), cv::FileStorage::READ);
-    if (!fsSettings.isOpened()) {
-        cerr << "Failed to open settings file at: " << cameraSettingFile << endl;
-        exit(-1);
-    }
-
-    //    //Load ORB Vocabulary
-    //    cout << endl << "Loading ORB Vocabulary. This could take a while..." <<
-    //    endl;
-    //
-    //    mpVocabulary = new ORBVocabulary();
-    //    bool bVocLoad = mpVocabulary->loadFromTextFile(strVocFile);
-    //    if(!bVocLoad)
-    //    {
-    //        cerr << "Wrong path to vocabulary. " << endl;
-    //        cerr << "Falied to open at: " << strVocFile << endl;
-    //        exit(-1);
-    //    }
-    //    cout << "Vocabulary loaded!" << endl << endl;
-
-    mpVocabulary = pVocabulary;
-    // Create KeyFrame Database
-    mpKeyFrameDatabase = new KeyFrameDatabase(*mpVocabulary);
-
-    // Create the Map
-    mpMap = new Map(0);
-    mpMapCount = 1;
-
-    // Create New MultiMapper - It also create LoopCloser Thread and Launch
-    // mpMMapper = new MultiMapper(mpMap, mpKeyFrameDatabase, mpVocabulary);
-    //    mpMMapper->AddMap(mpMap, mpKeyFrameDatabase);//Add the map to
-    //    multimapper once it's created - use this when MM is implemented as
-    //    thread
-    //    mpMMapper->SetVocabulary(mpVocabulary);
-    // mptMultiMapping = new thread(&iORB_SLAM::MultiMapper::Run, mpMMapper);
-
-    // Init MultiMaps from xml file
-    // mpMMapper->InitFromFile("./Maps");
-
-    // Create MapSerializer
-    mpMapSerializer = new MapSerializer();
-
-    // Create Drawers. These are used by the Viewer
-    mpFrameDrawer = new FrameDrawer(mpMap);
-    mpMapDrawer = new MapDrawer(mpMap, cameraSettingFile);
-
-    // Initialize the Tracking thread
-    //(it will live in the main thread of execution, the one that called this
-    // constructor)
-    mpTracker = new Tracking(this, mpVocabulary, mpFrameDrawer, mpMapDrawer, mpMap,
-        mpMMapper, mpMapSerializer, mpKeyFrameDatabase,
-        cameraSettingFile, mSensor, mbUseMMapping);
-
-    // Initialize the Local Mapping thread and launch
-    mpLocalMapper = new LocalMapping(mpMap, mSensor == MONOCULAR);
-    mptLocalMapping = new thread(&iORB_SLAM::LocalMapping::Run, mpLocalMapper);
-
-    // LoopClosing is done by MultiMapper
-    // Initialize the Loop Closing thread and launch
-    mpLoopCloser = new LoopClosing(mpMap, mpKeyFrameDatabase, mpVocabulary,
-        mSensor != MONOCULAR);
-    mptLoopClosing = new thread(&iORB_SLAM::LoopClosing::Run, mpLoopCloser);
-
-    // Initialize the Viewer thread and launch
-    mpViewer = new Viewer(this, mpFrameDrawer, mpMapDrawer, mpTracker, cameraSettingFile);
-    if (bUseViewer)
-        mptViewer = new thread(&Viewer::Run, mpViewer);
-
-    mpTracker->SetViewer(mpViewer);
-
-    // Set pointers between threads
-    mpTracker->SetLocalMapper(mpLocalMapper);
-    mpTracker->SetLoopClosing(mpLoopCloser);
-
-    mpLocalMapper->SetTracker(mpTracker);
-    mpLocalMapper->SetLoopCloser(mpLoopCloser);
-
-    mpLoopCloser->SetTracker(mpTracker);
-    mpLoopCloser->SetLocalMapper(mpLocalMapper);
-}
-
 System::System(const string& strVocFile, const string& cameraSettingFile,
     const eSensor sensor, const bool bUseViewer,
     const bool bUseMMapping)
@@ -149,6 +38,7 @@ System::System(const string& strVocFile, const string& cameraSettingFile,
     , mbDeactivateLocalizationMode(false)
     , mbUseMMapping(bUseMMapping)
 {
+    systemCount++;
     // Output welcome message
     cout << endl
          << "ORBSLAMM Copyright (C) 2016-2017 Hayyan Daoud, University of Malaya."
@@ -201,6 +91,7 @@ System::System(const string& strVocFile, const string& cameraSettingFile,
 
     // Create the Map
     mpMap = new Map(0);
+    mpMapCount = 1;
 
     // Create New MultiMapper - It also create LoopCloser Thread and Launch
     // mpMMapper = new MultiMapper(mpMap, mpKeyFrameDatabase, mpVocabulary);

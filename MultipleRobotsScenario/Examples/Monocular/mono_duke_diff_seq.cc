@@ -77,7 +77,7 @@ int main(int argc, char** argv)
     thread Run1(RunSLAM1, ref(start1), ref(nImages), ref(SLAM1), ref(vstrImageFilenames), ref(vTimestamps));
 
     // Create the second SLAM system
-    iORB_SLAM::System SLAM2(argv[1], argv[4], iORB_SLAM::System::MONOCULAR, false, bUseMMaps);
+    iORB_SLAM::System SLAM2(argv[1], argv[4], iORB_SLAM::System::MONOCULAR, true, bUseMMaps);
     // Assign the mutli-mapper
     SLAM2.SetMultiMapper(pMMapper);
     // Run the thread (Robot2)
