@@ -154,20 +154,16 @@ Tracking::Tracking(System* pSys, ORBVocabulary* pVoc, FrameDrawer* pFrameDrawer,
         else
             mDepthMapFactor = 1.0f / mDepthMapFactor;
     }
-
-    //mpMMapper->AddMap(mpMap, mpKeyFrameDB);
 }
 
 void Tracking::SetLocalMapper(LocalMapping* pLocalMapper)
 {
     mpLocalMapper = pLocalMapper;
-    //mpMap->mpLocalMapper = pLocalMapper;
 }
 
 void Tracking::SetLoopClosing(LoopClosing* pLoopClosing)
 {
     mpLoopClosing = pLoopClosing;
-    //mpMap->mpLoopCloser = pLoopClosing;
 }
 
 void Tracking::SetMMapper(MultiMapper* pMMapper)
@@ -1435,6 +1431,11 @@ void Tracking::Reset()
     // Reset Loop Closing
     cout << "Reseting Loop Closing...";
     mpLoopClosing->RequestReset();
+    cout << " done" << endl;
+
+    // Reset Multi Mapping
+    cout << "Reseting Multi Mapping...";
+    mpMMapper->RequestReset();
     cout << " done" << endl;
 
     // Clear BoW Database

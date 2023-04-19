@@ -87,6 +87,7 @@ bool MultiMapper::DetectLoop()
             mbMatchedBefore = false;
             mbSwapped = false;
             if (pMap->isAttachedToMap(pMapBase)) {
+                // TODO: fix this
                 continue;
                 // If less than 30 Keyframes passed since last matching
                 long Incr = pMap->mpLastKF->mnId - pMap->mpMatchingKF->mnId;
@@ -97,11 +98,10 @@ bool MultiMapper::DetectLoop()
                     continue;
             }
 
-            //Don't match a map with less than 10 Keyframes
+            // Don't match a map with less than 10 Keyframes
             if (vpKeyFrames.size() <= 10)
                 continue;
-
-            if (!vpKeyFrames.empty() && !pKFDB->empty()) {
+            else if (!pKFDB->empty()) {
                 for (std::vector<KeyFrame *>::iterator Kit = vpKeyFrames.end() - 1, Kend = vpKeyFrames.begin(); Kit >= Kend; Kit--) {
                     KeyFrame* pKeyFrame = *Kit;
 
@@ -166,7 +166,6 @@ bool MultiMapper::DetectLoop()
                     int nCandidates = 0;
 
                     for (int i = 0; i < nKFs; i++) {
-
                         KeyFrame* pKF = vpCandidateKFs[i];
 
                         if (pKF->isBad()) {
@@ -449,7 +448,6 @@ void MultiMapper::UpdatePosesAndAdd(Map* pMap, Map* pMapBase, const g2o::Sim3 g2
     cv::Mat Twc = pKeyFrame->GetPoseInverse();
 
     {
-
         // Get Map Mutex
         unique_lock<mutex> lock(pMap->mMutexMapUpdate);
         unique_lock<mutex> lock1(pMapBase->mMutexMapUpdate);
