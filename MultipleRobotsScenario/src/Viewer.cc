@@ -22,7 +22,7 @@
 #include <pangolin/pangolin.h>
 
 #include <mutex>
-#include <format>
+#include <string>
 
 namespace iORB_SLAM {
 
@@ -66,8 +66,8 @@ Viewer::Viewer(System* pSystem, FrameDrawer* pFrameDrawer, MapDrawer* pMapDrawer
         systemName = "ORB-SLAM2";
     }
 
-    MapViewerName = std::format("%s: Map Viewer (%d)", systemName, pSystem->systemCount);
-    FrameWindowName = std::format("%s: Current Frame (%d)", systemName, pSystem->systemCount);
+    MapViewerName = systemName + ": Map Viewer - " + std::to_string(pSystem->systemCount);
+    FrameWindowName = systemName + ": Frame Viewer - " + std::to_string(pSystem->systemCount);;
 }
 
 void Viewer::Run()
