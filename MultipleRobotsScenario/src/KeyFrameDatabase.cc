@@ -84,7 +84,7 @@ vector<KeyFrame*> KeyFrameDatabase::DetectLoopCandidates(KeyFrame* pKF, float mi
         for (DBoW2::BowVector::const_iterator vit = pKF->mBowVec.begin(), vend = pKF->mBowVec.end(); vit != vend; vit++) {
             list<KeyFrame*>& lKFs = mvInvertedFile[vit->first];
 
-            for (list<KeyFrame *>::iterator lit = lKFs.begin(), lend = lKFs.end(); lit < lend; lit++) {
+            for (list<KeyFrame *>::iterator lit = lKFs.begin(), lend = lKFs.end(); lit != lend; lit++) {
                 KeyFrame* pKFi = *lit;
                 if (pKFi->mnLoopQuery != pKF->mnId) {
                     pKFi->mnLoopWords = 0;
