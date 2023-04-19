@@ -732,12 +732,6 @@ void MultiMapper::EraseMap(Map* pMap)
     mvMapAndKFDB.erase(mvMapAndKFDB.begin() + pMap->mnId);
 }
 
-std::vector<MapAndKFDB> MultiMapper::GetAllMapsAndKeyFrameDatabase()
-{
-    unique_lock<mutex> lock(mMutexMultiMapper);
-    return mvMapAndKFDB;
-}
-
 void MultiMapper::SaveTrajectory(const string& filename)
 {
     unique_lock<mutex> lock(mMutexLoopQueue);
