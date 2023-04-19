@@ -23,41 +23,45 @@
 
 #include <mutex>
 
-namespace iORB_SLAM
-{
+namespace iORB_SLAM {
 
-Viewer::Viewer(System* pSystem, FrameDrawer *pFrameDrawer, MapDrawer *pMapDrawer, Tracking *pTracking, const string &strSettingPath):
-    mpSystem(pSystem), mpFrameDrawer(pFrameDrawer),mpMapDrawer(pMapDrawer), mpTracker(pTracking),
-    mbFinishRequested(false), mbFinished(true), mbRunning(false), mbStopped(false), mbStopRequested(false), mbMutliMapping(false)
+Viewer::Viewer(System* pSystem, FrameDrawer* pFrameDrawer, MapDrawer* pMapDrawer, Tracking* pTracking, const string& cameraSettingFile)
+    : mpSystem(pSystem)
+    , mpFrameDrawer(pFrameDrawer)
+    , mpMapDrawer(pMapDrawer)
+    , mpTracker(pTracking)
+    , mbFinishRequested(false)
+    , mbFinished(true)
+    , mbRunning(false)
+    , mbStopped(false)
+    , mbStopRequested(false)
+    , mbMutliMapping(false)
 {
-    cv::FileStorage fSettings(strSettingPath, cv::FileStorage::READ);
+    cv::FileStorage fSettings(cameraSettingFile, cv::FileStorage::READ);
 
     float fps = fSettings["Camera.fps"];
-    if(fps<1)
-        fps=30;
-    mT = 1e3/fps;
+    if (fps < 1)
+        fps = 30;
+    mT = 1e3 / fps;
 
     mImageWidth = fSettings["Camera.width"];
     mImageHeight = fSettings["Camera.height"];
-    if(mImageWidth<1 || mImageHeight<1)
-    {
+    if (mImageWidth < 1 || mImageHeight < 1) {
         mImageWidth = 640;
         mImageHeight = 480;
     }
-    
+
     mViewpointX = fSettings["Viewer.ViewpointX"];
     mViewpointY = fSettings["Viewer.ViewpointY"];
     mViewpointZ = fSettings["Viewer.ViewpointZ"];
     mViewpointF = fSettings["Viewer.ViewpointF"];
-    
-    if(mpSystem->IsUsingMMaps())
-    {
+
+    if (mpSystem->IsUsingMMaps()) {
         mbMutliMapping = true;
         MapViewerName = "ORBSLAMM: Map Viewer";
         FrameWindowName = "ORBSLAMM: Current Frame";
     }
-    else
-    {
+    else {
         MapViewerName = "ORB-SLAM2: Map Viewer";
         FrameWindowName = "ORB-SLAM2: Current Frame";
     }
@@ -67,36 +71,34 @@ void Viewer::Run()
 {
     mbFinished = false;
     mbRunning = true;
-    
-    pangolin::CreateWindowAndBind(MapViewerName,1024,768);
-    
+
+    pangolin::CreateWindowAndBind(MapViewerName, 1024, 768);
 
     // 3D Mouse handler requires depth testing to be enabled
     glEnable(GL_DEPTH_TEST);
 
     // Issue specific OpenGl we might need
-    glEnable (GL_BLEND);
-    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    pangolin::CreatePanel("menu").SetBounds(0.0,1.0,0.0,pangolin::Attach::Pix(175));
-    pangolin::Var<bool> menuFollowCamera("menu.Follow Camera",true,true);
-    pangolin::Var<bool> menuShowPoints("menu.Show Points",true,true);
-    pangolin::Var<bool> menuShowKeyFrames("menu.Show KeyFrames",true,true);
-    pangolin::Var<bool> menuShowGraph("menu.Show Graph",true,true);
-    pangolin::Var<bool> menuLocalizationMode("menu.Localization Mode",false,true);
-    pangolin::Var<bool> menuMultiMapping("menu.Multi-Mapping",mbMutliMapping,true);
-    pangolin::Var<bool> menuReset("menu.Reset",false,false);
+    pangolin::CreatePanel("menu").SetBounds(0.0, 1.0, 0.0, pangolin::Attach::Pix(175));
+    pangolin::Var<bool> menuFollowCamera("menu.Follow Camera", true, true);
+    pangolin::Var<bool> menuShowPoints("menu.Show Points", true, true);
+    pangolin::Var<bool> menuShowKeyFrames("menu.Show KeyFrames", true, true);
+    pangolin::Var<bool> menuShowGraph("menu.Show Graph", true, true);
+    pangolin::Var<bool> menuLocalizationMode("menu.Localization Mode", false, true);
+    pangolin::Var<bool> menuMultiMapping("menu.Multi-Mapping", mbMutliMapping, true);
+    pangolin::Var<bool> menuReset("menu.Reset", false, false);
 
     // Define Camera Render Object (for view / scene browsing)
     pangolin::OpenGlRenderState s_cam(
-                pangolin::ProjectionMatrix(1024,768,mViewpointF,mViewpointF,512,389,0.1,1000),
-                pangolin::ModelViewLookAt(mViewpointX,mViewpointY,mViewpointZ, 0,0,0,0.0,-1.0, 0.0)
-                );
+        pangolin::ProjectionMatrix(1024, 768, mViewpointF, mViewpointF, 512, 389, 0.1, 1000),
+        pangolin::ModelViewLookAt(mViewpointX, mViewpointY, mViewpointZ, 0, 0, 0, 0.0, -1.0, 0.0));
 
     // Add named OpenGL viewport to window and provide 3D Handler
     pangolin::View& d_cam = pangolin::CreateDisplay()
-            .SetBounds(0.0, 1.0, pangolin::Attach::Pix(175), 1.0, -1024.0f/768.0f)
-            .SetHandler(new pangolin::Handler3D(s_cam));
+                                .SetBounds(0.0, 1.0, pangolin::Attach::Pix(175), 1.0, -1024.0f / 768.0f)
+                                .SetHandler(new pangolin::Handler3D(s_cam));
 
     pangolin::OpenGlMatrix Twc;
     Twc.SetIdentity();
@@ -107,71 +109,62 @@ void Viewer::Run()
     bool bLocalizationMode = false;
     bool bMultiMapping = false;
 
-    while(1)
-    {
+    while (1) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         mpMapDrawer->GetCurrentOpenGLCameraMatrix(Twc);
 
-        if(menuFollowCamera && bFollow)
-        {
+        if (menuFollowCamera && bFollow) {
             s_cam.Follow(Twc);
         }
-        else if(menuFollowCamera && !bFollow)
-        {
-            s_cam.SetModelViewMatrix(pangolin::ModelViewLookAt(mViewpointX,mViewpointY,mViewpointZ, 0,0,0,0.0,-1.0, 0.0));
+        else if (menuFollowCamera && !bFollow) {
+            s_cam.SetModelViewMatrix(pangolin::ModelViewLookAt(mViewpointX, mViewpointY, mViewpointZ, 0, 0, 0, 0.0, -1.0, 0.0));
             s_cam.Follow(Twc);
             bFollow = true;
         }
-        else if(!menuFollowCamera && bFollow)
-        {
+        else if (!menuFollowCamera && bFollow) {
             bFollow = false;
         }
-        
-        if(menuMultiMapping && !bMultiMapping)
-        {
+
+        if (menuMultiMapping && !bMultiMapping) {
             mpTracker->InformMultiMapping(true);
             bMultiMapping = true;
         }
-        else
-            if(!menuMultiMapping && bMultiMapping)
-            {
-                mpTracker->InformMultiMapping(false);
-                bMultiMapping = false;
-            }
+        else if (!menuMultiMapping && bMultiMapping) {
+            mpTracker->InformMultiMapping(false);
+            bMultiMapping = false;
+        }
 
-        if(menuLocalizationMode && !bLocalizationMode)
-        {
+        if (menuLocalizationMode && !bLocalizationMode) {
             mpSystem->ActivateLocalizationMode();
             bLocalizationMode = true;
         }
-        else if(!menuLocalizationMode && bLocalizationMode)
-        {
+        else if (!menuLocalizationMode && bLocalizationMode) {
             mpSystem->DeactivateLocalizationMode();
             bLocalizationMode = false;
         }
 
         d_cam.Activate(s_cam);
-        glClearColor(1.0f,1.0f,1.0f,1.0f);
+        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         mpMapDrawer->DrawCurrentCamera(Twc);
-        if(menuShowKeyFrames || menuShowGraph)
-            mpMapDrawer->DrawKeyFrames(menuShowKeyFrames,menuShowGraph);
-        if(menuShowPoints)
+        if (menuShowKeyFrames || menuShowGraph)
+            mpMapDrawer->DrawKeyFrames(menuShowKeyFrames, menuShowGraph);
+        if (menuShowPoints)
             mpMapDrawer->DrawMapPoints();
 
         pangolin::FinishFrame();
 
+        // show camera image  
         cv::Mat im = mpFrameDrawer->DrawFrame();
-        cv::imshow(FrameWindowName,im);
+        cv::imshow(FrameWindowName, im);
         cv::waitKey(mT);
 
-        if(menuReset)
-        {
+        if (menuReset) {
             menuShowGraph = true;
             menuShowKeyFrames = true;
             menuShowPoints = true;
             menuLocalizationMode = false;
-            if(bLocalizationMode)
+            if (bLocalizationMode)
                 mpSystem->DeactivateLocalizationMode();
             bLocalizationMode = false;
             bFollow = true;
@@ -181,15 +174,13 @@ void Viewer::Run()
             menuReset = false;
         }
 
-        if(Stop())
-        {
-            while(isStopped())
-            {
+        if (Stop()) {
+            while (isStopped()) {
                 usleep(3000);
             }
         }
 
-        if(CheckFinish())
+        if (CheckFinish())
             break;
     }
 
@@ -201,12 +192,11 @@ bool Viewer::isRunning()
     return mbRunning;
 }
 
-
 void Viewer::RequestFinish()
 {
     unique_lock<mutex> lock(mMutexFinish);
     mbFinishRequested = true;
-    if(!mbRunning)
+    if (!mbRunning)
         mbFinished = true;
 }
 
@@ -231,7 +221,7 @@ bool Viewer::isFinished()
 void Viewer::RequestStop()
 {
     unique_lock<mutex> lock(mMutexStop);
-    if(!mbStopped)
+    if (!mbStopped)
         mbStopRequested = true;
 }
 
@@ -246,10 +236,9 @@ bool Viewer::Stop()
     unique_lock<mutex> lock(mMutexStop);
     unique_lock<mutex> lock2(mMutexFinish);
 
-    if(mbFinishRequested)
+    if (mbFinishRequested)
         return false;
-    else if(mbStopRequested)
-    {
+    else if (mbStopRequested) {
         mbStopped = true;
         //mbRunning = false;
         mbStopRequested = false;
@@ -257,7 +246,6 @@ bool Viewer::Stop()
     }
 
     return false;
-
 }
 
 void Viewer::Release()
@@ -265,5 +253,4 @@ void Viewer::Release()
     unique_lock<mutex> lock(mMutexStop);
     mbStopped = false;
 }
-
 }

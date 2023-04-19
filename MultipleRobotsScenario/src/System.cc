@@ -28,7 +28,7 @@
 
 namespace iORB_SLAM {
 
-System::System(ORBVocabulary* pVocabulary, const string& strSettingsFile,
+System::System(ORBVocabulary* pVocabulary, const string& cameraSettingFile,
     const eSensor sensor, const bool bUseViewer,
     const bool bUseMMapping)
     : mSensor(sensor)
@@ -58,9 +58,9 @@ System::System(ORBVocabulary* pVocabulary, const string& strSettingsFile,
         cout << "RGB-D" << endl;
 
     // Check settings file
-    cv::FileStorage fsSettings(strSettingsFile.c_str(), cv::FileStorage::READ);
+    cv::FileStorage fsSettings(cameraSettingFile.c_str(), cv::FileStorage::READ);
     if (!fsSettings.isOpened()) {
-        cerr << "Failed to open settings file at: " << strSettingsFile << endl;
+        cerr << "Failed to open settings file at: " << cameraSettingFile << endl;
         exit(-1);
     }
 
@@ -101,14 +101,14 @@ System::System(ORBVocabulary* pVocabulary, const string& strSettingsFile,
 
     // Create Drawers. These are used by the Viewer
     mpFrameDrawer = new FrameDrawer(mpMap);
-    mpMapDrawer = new MapDrawer(mpMap, strSettingsFile);
+    mpMapDrawer = new MapDrawer(mpMap, cameraSettingFile);
 
     // Initialize the Tracking thread
     //(it will live in the main thread of execution, the one that called this
     // constructor)
     mpTracker = new Tracking(this, mpVocabulary, mpFrameDrawer, mpMapDrawer, mpMap,
         mpMMapper, mpMapSerializer, mpKeyFrameDatabase,
-        strSettingsFile, mSensor, mbUseMMapping);
+        cameraSettingFile, mSensor, mbUseMMapping);
 
     // Initialize the Local Mapping thread and launch
     mpLocalMapper = new LocalMapping(mpMap, mSensor == MONOCULAR);
@@ -121,7 +121,7 @@ System::System(ORBVocabulary* pVocabulary, const string& strSettingsFile,
     mptLoopClosing = new thread(&iORB_SLAM::LoopClosing::Run, mpLoopCloser);
 
     // Initialize the Viewer thread and launch
-    mpViewer = new Viewer(this, mpFrameDrawer, mpMapDrawer, mpTracker, strSettingsFile);
+    mpViewer = new Viewer(this, mpFrameDrawer, mpMapDrawer, mpTracker, cameraSettingFile);
     if (bUseViewer)
         mptViewer = new thread(&Viewer::Run, mpViewer);
 
@@ -138,7 +138,7 @@ System::System(ORBVocabulary* pVocabulary, const string& strSettingsFile,
     mpLoopCloser->SetLocalMapper(mpLocalMapper);
 }
 
-System::System(const string& strVocFile, const string& strSettingsFile,
+System::System(const string& strVocFile, const string& cameraSettingFile,
     const eSensor sensor, const bool bUseViewer,
     const bool bUseMMapping)
     : mSensor(sensor)
@@ -168,9 +168,9 @@ System::System(const string& strVocFile, const string& strSettingsFile,
         cout << "RGB-D" << endl;
 
     // Check settings file
-    cv::FileStorage fsSettings(strSettingsFile.c_str(), cv::FileStorage::READ);
+    cv::FileStorage fsSettings(cameraSettingFile.c_str(), cv::FileStorage::READ);
     if (!fsSettings.isOpened()) {
-        cerr << "Failed to open settings file at: " << strSettingsFile << endl;
+        cerr << "Failed to open settings file at: " << cameraSettingFile << endl;
         exit(-1);
     }
 
@@ -217,14 +217,14 @@ System::System(const string& strVocFile, const string& strSettingsFile,
 
     // Create Drawers. These are used by the Viewer
     mpFrameDrawer = new FrameDrawer(mpMap);
-    mpMapDrawer = new MapDrawer(mpMap, strSettingsFile);
+    mpMapDrawer = new MapDrawer(mpMap, cameraSettingFile);
 
     // Initialize the Tracking thread
     //(it will live in the main thread of execution, the one that called this
     // constructor)
     mpTracker = new Tracking(this, mpVocabulary, mpFrameDrawer, mpMapDrawer, mpMap,
         mpMMapper, mpMapSerializer, mpKeyFrameDatabase,
-        strSettingsFile, mSensor, mbUseMMapping);
+        cameraSettingFile, mSensor, mbUseMMapping);
 
     // Initialize the Local Mapping thread and launch
     mpLocalMapper = new LocalMapping(mpMap, mSensor == MONOCULAR);
@@ -237,7 +237,7 @@ System::System(const string& strVocFile, const string& strSettingsFile,
     mptLoopClosing = new thread(&iORB_SLAM::LoopClosing::Run, mpLoopCloser);
 
     // Initialize the Viewer thread and launch
-    mpViewer = new Viewer(this, mpFrameDrawer, mpMapDrawer, mpTracker, strSettingsFile);
+    mpViewer = new Viewer(this, mpFrameDrawer, mpMapDrawer, mpTracker, cameraSettingFile);
     if (bUseViewer)
         mptViewer = new thread(&Viewer::Run, mpViewer);
 

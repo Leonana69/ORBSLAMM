@@ -18,18 +18,16 @@
 * along with ORB-SLAM2. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #ifndef ORBVOCABULARY_H
 #define ORBVOCABULARY_H
 
-#include"Thirdparty/DBoW2/DBoW2/FORB.h"
-#include"Thirdparty/DBoW2/DBoW2/TemplatedVocabulary.h"
+#include "Thirdparty/DBoW2/DBoW2/FORB.h"
+#include "Thirdparty/DBoW2/DBoW2/TemplatedVocabulary.h"
 
-namespace iORB_SLAM
-{
+namespace iORB_SLAM {
 
 typedef DBoW2::TemplatedVocabulary<DBoW2::FORB::TDescriptor, DBoW2::FORB>
-  ORBVocabulary;
+    ORBVocabulary;
 
 } //namespace ORB_SLAM
 

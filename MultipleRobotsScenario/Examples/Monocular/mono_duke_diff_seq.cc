@@ -70,11 +70,11 @@ int main(int argc, char** argv)
     iORB_SLAM::MultiMapper* pMMapper = new iORB_SLAM::MultiMapper();
 
     // Create SLAM system. It initializes all system threads and gets ready to process frames.
-    iORB_SLAM::System SLAM(argv[1], argv[2], iORB_SLAM::System::MONOCULAR, false, bUseMMaps);
+    iORB_SLAM::System SLAM1(argv[1], argv[2], iORB_SLAM::System::MONOCULAR, false, bUseMMaps);
     // Assign the multi-mapper
-    SLAM.SetMultiMapper(pMMapper);
+    SLAM1.SetMultiMapper(pMMapper);
     // Run the thread (Robot1)
-    thread Run1(RunSLAM1, ref(start1), ref(nImages), ref(SLAM), ref(vstrImageFilenames), ref(vTimestamps));
+    thread Run1(RunSLAM1, ref(start1), ref(nImages), ref(SLAM1), ref(vstrImageFilenames), ref(vTimestamps));
 
     // Create the second SLAM system
     iORB_SLAM::System SLAM2(argv[1], argv[4], iORB_SLAM::System::MONOCULAR, false, bUseMMaps);
@@ -143,8 +143,8 @@ void RunSLAM1(int& start, int& nImages, iORB_SLAM::System& SLAM, vector<string>&
 
     char time_s[26];
     strftime(time_s, 26, "%Y:%m:%d %H:%M:%S", tm_info);
-    // Save camera trajectory
-    // SLAM.SaveTrajectoryKITTI("KeyFrameTrajectory_kitti" + string(time_s) + ".txt");
+    // Save camera trajectory and keyframe trajectory
+    SLAM.SaveTrajectoryKITTI("KeyFrameTrajectory_kitti" + string(time_s) + ".txt");
     SLAM.SaveKeyFrameTrajectoryTUM("KeyFrameTrajectory" + string(time_s) + ".txt");
     SLAM.SaveMultipleMapsTrajectories("Maps" + string(time_s) + ".txt");
 }

@@ -18,13 +18,12 @@
 * along with ORB-SLAM2. If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #ifndef SYSTEM_H
 #define SYSTEM_H
 
-#include<string>
-#include<thread>
-#include<opencv2/core/core.hpp>
+#include <string>
+#include <thread>
+#include <opencv2/core/core.hpp>
 
 #include "Tracking.h"
 #include "FrameDrawer.h"
@@ -38,8 +37,7 @@
 #include "Viewer.h"
 #include "MapSerializer.h"
 
-namespace iORB_SLAM
-{
+namespace iORB_SLAM {
 
 class Viewer;
 class FrameDrawer;
@@ -50,50 +48,48 @@ class LoopClosing;
 class MultiMapper;
 class MapSerializer;
 
-class System
-{
+class System {
 public:
     // Input sensor
-    enum eSensor{
-        MONOCULAR=0,
-        STEREO=1,
-        RGBD=2
+    enum eSensor {
+        MONOCULAR = 0,
+        STEREO = 1,
+        RGBD = 2
     };
-    
-    enum MapStatus{ 
-        MAP_OK, 
-        MAP_FAILED, 
-        MAP_EXISTS 
+
+    enum MapStatus {
+        MAP_OK,
+        MAP_FAILED,
+        MAP_EXISTS
     };
 
 public:
-
     // Initialize the SLAM system. It launches the Local Mapping, Loop Closing and Viewer threads.
-    //System(const string &strVocFile, const string &strSettingsFile, const eSensor sensor, const bool bUseViewer = true);
-    System(const string &strVocFile, const string &strSettingsFile, const eSensor sensor, const bool bUseViewer = true, const bool bUseMMapping = false);
-    System(ORBVocabulary* pVocabulary, const string &strSettingsFile, const eSensor sensor, const bool bUseViewer = true, const bool bUseMMapping = false);
+    //System(const string &strVocFile, const string &cameraSettingFile, const eSensor sensor, const bool bUseViewer = true);
+    System(const string& strVocFile, const string& cameraSettingFile, const eSensor sensor, const bool bUseViewer = true, const bool bUseMMapping = false);
+    System(ORBVocabulary* pVocabulary, const string& cameraSettingFile, const eSensor sensor, const bool bUseViewer = true, const bool bUseMMapping = false);
 
     // Proccess the given stereo frame. Images must be synchronized and rectified.
     // Input images: RGB (CV_8UC3) or grayscale (CV_8U). RGB is converted to grayscale.
     // Returns the camera pose (empty if tracking fails).
-    cv::Mat TrackStereo(const cv::Mat &imLeft, const cv::Mat &imRight, const double &timestamp);
+    cv::Mat TrackStereo(const cv::Mat& imLeft, const cv::Mat& imRight, const double& timestamp);
 
     // Process the given rgbd frame. Depthmap must be registered to the RGB frame.
     // Input image: RGB (CV_8UC3) or grayscale (CV_8U). RGB is converted to grayscale.
     // Input depthmap: Float (CV_32F).
     // Returns the camera pose (empty if tracking fails).
-    cv::Mat TrackRGBD(const cv::Mat &im, const cv::Mat &depthmap, const double &timestamp);
+    cv::Mat TrackRGBD(const cv::Mat& im, const cv::Mat& depthmap, const double& timestamp);
 
     // Proccess the given monocular frame
     // Input images: RGB (CV_8UC3) or grayscale (CV_8U). RGB is converted to grayscale.
     // Returns the camera pose (empty if tracking fails).
-    cv::Mat TrackMonocular(const cv::Mat &im, const double &timestamp);
+    cv::Mat TrackMonocular(const cv::Mat& im, const double& timestamp);
 
     // This stops local mapping thread (map building) and performs only camera tracking.
     void ActivateLocalizationMode();
     // This resumes local mapping thread and performs SLAM again.
     void DeactivateLocalizationMode();
-    
+
     void SetMultiMapper(MultiMapper* pMMapper);
 
     // Reset the system (clear map)
@@ -107,37 +103,35 @@ public:
     // Save camera trajectory in the TUM RGB-D dataset format.
     // Call first Shutdown()
     // See format details at: http://vision.in.tum.de/data/datasets/rgbd-dataset
-    void SaveTrajectoryTUM(const string &filename);
+    void SaveTrajectoryTUM(const string& filename);
 
     // Save keyframe poses in the TUM RGB-D dataset format.
     // Use this function in the monocular case.
     // Call first Shutdown()
     // See format details at: http://vision.in.tum.de/data/datasets/rgbd-dataset
-    void SaveKeyFrameTrajectoryTUM(const string &filename);
+    void SaveKeyFrameTrajectoryTUM(const string& filename);
 
     // Save camera trajectory in the KITTI dataset format.
     // Call first Shutdown()
     // See format details at: http://www.cvlibs.net/datasets/kitti/eval_odometry.php
-    void SaveTrajectoryKITTI(const string &filename);
-    
-    //Call MultiMapper SaveTrajectory
-    void SaveMultipleMapsTrajectories(const string &filename);
-    
-    //Use the new map and KF database after tracking is lost (The old are kept at MultiMapper)
+    void SaveTrajectoryKITTI(const string& filename);
+
+    // Call MultiMapper SaveTrajectory
+    void SaveMultipleMapsTrajectories(const string& filename);
+
+    // Use the new map and KF database after tracking is lost (The old are kept at MultiMapper)
     void SwitchMap(Map* pMap);
     void SwitchKFDB(KeyFrameDatabase* pKFDB);
-    
+
     bool IsUsingMMaps();
 
-    // TODO: Save/Load functions
-    MapStatus SaveMap(const string &filename);
-    MapStatus LoadMap(const string &filename);
+    MapStatus SaveMap(const string& filename);
+    MapStatus LoadMap(const string& filename);
 
 private:
-
     // Input sensor
     eSensor mSensor;
-    
+
     //Map Status
     MapStatus mMapStatus;
 
@@ -149,11 +143,11 @@ private:
 
     // Map structure that stores the pointers to all KeyFrames and MapPoints.
     Map* mpMap;
-    
-    //Multi Mapper that reads maps from different robots/rests and join them in one global map.
+
+    // Multi Mapper that reads maps from different robots/rests and join them in one global map.
     MultiMapper* mpMMapper;
-    
-    //Map Serializer to save and load maps
+
+    // Map Serializer to save and load maps
     MapSerializer* mpMapSerializer;
 
     // Tracker. It receives a frame and computes the associated camera pose.
@@ -189,10 +183,10 @@ private:
     std::mutex mMutexMode;
     bool mbActivateLocalizationMode;
     bool mbDeactivateLocalizationMode;
-    
+
     bool mbUseMMapping;
 };
 
-}// namespace iORB_SLAM
+} // namespace iORB_SLAM
 
 #endif // SYSTEM_H

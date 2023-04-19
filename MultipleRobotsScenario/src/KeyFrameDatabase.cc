@@ -67,7 +67,6 @@ void KeyFrameDatabase::erase(KeyFrame* pKF)
 
 void KeyFrameDatabase::clear()
 {
-    unique_lock<mutex> lock(mMutex);
     mvInvertedFile.clear();
     mvInvertedFile.resize(mpVoc->size());
 }
