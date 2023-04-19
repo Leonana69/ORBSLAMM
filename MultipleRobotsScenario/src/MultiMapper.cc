@@ -30,7 +30,6 @@ namespace iORB_SLAM {
 
 MultiMapper::MultiMapper()
     : mnFinishRequests(0)
-    , mnSLAMSystems(0)
     , mnMapCount(0)
 {}
 
@@ -618,7 +617,6 @@ void MultiMapper::RequestReset()
         unique_lock<mutex> lock(mMutexReset);
         mbResetRequested = true;
     }
-
     while (1) {
         {
             unique_lock<mutex> lock2(mMutexReset);
@@ -633,9 +631,7 @@ void MultiMapper::ResetIfRequested()
 {
     unique_lock<mutex> lock(mMutexReset);
     if (mbResetRequested) {
-        mvpMaps.clear();
-        mvpKFDB.clear();
-
+        mvMapAndKFDB.clear();
         mbResetRequested = false;
     }
 }
@@ -646,7 +642,7 @@ bool MultiMapper::InitFromFile(const string& dirName)
     return true;
 }
 
-//This to be used when pMap is finite and not being updated to reduce map numbers
+// This to be used when pMap is finite and not being updated to reduce map numbers
 void MultiMapper::MergeMaps(Map* pMap, Map* pMapBase)
 {
     unique_lock<mutex> lock(pMap->mMutexMapUpdate);
@@ -711,9 +707,6 @@ void MultiMapper::AddMap(Map* pMap, KeyFrameDatabase* pKeyFrameDB)
 {
     unique_lock<mutex> lock(mMutexLoopQueue);
 
-    if (pMap->mnId == 0)
-        mnSLAMSystems++;
-
     if (pMap->mnId < mnMapCount) {
         pMap->mnId = mnMapCount;
         pMap->mnNxtId = mnMapCount + 1;
@@ -725,12 +718,10 @@ void MultiMapper::AddMap(Map* pMap, KeyFrameDatabase* pKeyFrameDB)
 
     MapAndKFDB mapKfDB = make_pair(pMap, pKeyFrameDB);
     mvMapAndKFDB.push_back(mapKfDB);
-    mvpMaps.push_back(pMap);
-    mvpKFDB.push_back(pKeyFrameDB);
 
     mnMapCount++;
 
-    cout << "\n\t--> Map" << mnMapCount - 1 << " was added!\n";
+    cout << "\n\t--> Map" << pMap->mnId << " was added!\n";
 
     //SaveTrajectory("MapsSeq.txt");//Check that every newly added map is correct in the final read of all maps
 }
@@ -738,8 +729,7 @@ void MultiMapper::AddMap(Map* pMap, KeyFrameDatabase* pKeyFrameDB)
 void MultiMapper::EraseMap(Map* pMap)
 {
     unique_lock<mutex> lock(mMutexMultiMapper);
-    mvpMaps.erase(mvpMaps.begin() + pMap->mnId);
-    mvpKFDB.erase(mvpKFDB.begin() + pMap->mnId);
+    mvMapAndKFDB.erase(mvMapAndKFDB.begin() + pMap->mnId);
 }
 
 vector<Map*> MultiMapper::GetAllMaps()
@@ -757,9 +747,7 @@ void MultiMapper::SaveTrajectory(const string& filename)
     f.open(filename.c_str(), ios::app);
     f << fixed;
 
-    for (std::vector<MapAndKFDB>::iterator it = mvMapAndKFDB.begin(), itend = mvMapAndKFDB.end(); it != itend; it++)
-    //for(size_t k = 0, kend = mvpMaps.size(); k < kend; k++)
-    {
+    for (std::vector<MapAndKFDB>::iterator it = mvMapAndKFDB.begin(), itend = mvMapAndKFDB.end(); it != itend; it++) {
         Map* pMap = it->first;
         //mvMapAndKFDB.pop_back();
         f << "#Map #" << pMap->mnId << ":\n";
@@ -853,14 +841,13 @@ void MultiMapper::RequestFinish()
 {
     unique_lock<mutex> lock(mMutexFinish);
     mnFinishRequests++;
-    cout << "Finish Requests = " << mnFinishRequests << " - SLAM Systems = " << mnSLAMSystems << endl;
-    //mbFinishRequested = true;
+    cout << "Finish Requests = " << mnFinishRequests << " - SLAM Systems = " << mnMapCount << endl;
 }
 
 bool MultiMapper::CheckFinish()
 {
     unique_lock<mutex> lock(mMutexFinish);
-    if (mnFinishRequests >= mnSLAMSystems) {
+    if (mnFinishRequests >= mnMapCount) {
         SaveTrajectory("MMaps.txt");
         return true;
     }

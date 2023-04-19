@@ -102,17 +102,12 @@ protected:
     //MultiMapper will close when all SLAM systems request to
     int mnFinishRequests;
 
-    //Number of Robots (SLAM Systems Threads)
-    int mnSLAMSystems;
-
     LocalMapping* mpLocalMapper;
     Tracking* mpTracker;
 
     LoopClosing* mpLoopCloser;
     std::thread* mptLoopClosing;
 
-    std::vector<Map*> mvpMaps;
-    std::vector<KeyFrameDatabase*> mvpKFDB;
     std::vector<MapAndKFDB> mvMapAndKFDB;
     unsigned int mnMapCount;
 
@@ -122,7 +117,6 @@ protected:
 
     bool CheckFinish();
     void SetFinish();
-    bool mbFinishRequested;
     bool mbFinished;
     std::mutex mMutexFinish;
     bool mbUpdatingMapPoses;
