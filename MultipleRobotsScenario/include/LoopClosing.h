@@ -33,65 +33,61 @@
 #include <mutex>
 #include "Thirdparty/g2o/g2o/types/types_seven_dof_expmap.h"
 
-namespace iORB_SLAM
-{
+namespace iORB_SLAM {
 
 class Tracking;
 class LocalMapping;
 class KeyFrameDatabase;
 //class MultiMapper;
 
-
-class LoopClosing
-{
+class LoopClosing {
 public:
-
-    typedef pair<set<KeyFrame*>,int> ConsistentGroup;    
-    typedef map<KeyFrame*,g2o::Sim3,std::less<KeyFrame*>,
+    typedef pair<set<KeyFrame*>, int> ConsistentGroup;
+    typedef map<KeyFrame*, g2o::Sim3, std::less<KeyFrame*>,
         Eigen::aligned_allocator<std::pair<KeyFrame* const, g2o::Sim3> > > KeyFrameAndPose;
 
 public:
-
-    LoopClosing(Map* pMap, KeyFrameDatabase* pDB, ORBVocabulary* pVoc,const bool bFixScale);
+    LoopClosing(Map* pMap, KeyFrameDatabase* pDB, ORBVocabulary* pVoc, const bool bFixScale);
 
     void SetTracker(Tracking* pTracker);
 
     void SetLocalMapper(LocalMapping* pLocalMapper);
-    
-//    void SetMMapper(MultiMapper* pMMapper);
+
+    //    void SetMMapper(MultiMapper* pMMapper);
 
     // Main function
     void Run();
 
-    void InsertKeyFrame(KeyFrame *pKF);
+    void InsertKeyFrame(KeyFrame* pKF);
 
     void RequestReset();
 
     // This function will run in a separate thread
     void RunGlobalBundleAdjustment(unsigned long nLoopKF);
     void RunGlobalBundleAdjustmentonMap(Map* pMap, unsigned long nLoopKF);
-    
+
     void RequestRunGBA(unsigned long nLoopKF = 0, Map* pMap = NULL);
 
-
-    bool isRunningGBA(){
+    bool isRunningGBA()
+    {
         unique_lock<std::mutex> lock(mMutexGBA);
         return mbRunningGBA;
     }
-    bool isFinishedGBA(){
+    bool isFinishedGBA()
+    {
         unique_lock<std::mutex> lock(mMutexGBA);
         return mbFinishedGBA;
-    }   
+    }
 
     void RequestFinish();
-    
+
     void SetStopGBA(bool bStop);
 
     bool isFinished();
-    
+
     void SwitchMap(Map* pMap);
     void SwitchKFDB(KeyFrameDatabase* pKFDB);
-    
+
     std::thread* GetGBAThread();
     void SetmbRunningGBA(bool bVal);
     bool GetmbRunningLoopClosing();
@@ -99,14 +95,13 @@ public:
     void InitGBAThread(int KFID);
 
 protected:
-
     bool CheckNewKeyFrames();
 
     bool DetectLoop();
 
     bool ComputeSim3();
 
-    void SearchAndFuse(const KeyFrameAndPose &CorrectedPosesMap);
+    void SearchAndFuse(const KeyFrameAndPose& CorrectedPosesMap);
 
     void CorrectLoop();
 
@@ -122,13 +117,13 @@ protected:
 
     Map* mpMap;
     Tracking* mpTracker;
-    
-//    MultiMapper* mpMMapper;
+
+    //    MultiMapper* mpMMapper;
 
     KeyFrameDatabase* mpKeyFrameDB;
     ORBVocabulary* mpORBVocabulary;
 
-    LocalMapping *mpLocalMapper;
+    LocalMapping* mpLocalMapper;
 
     std::list<KeyFrame*> mlpLoopKeyFrameQueue;
 
@@ -149,7 +144,7 @@ protected:
     g2o::Sim3 mg2oScw;
 
     long unsigned int mLastLoopKFid;
-    
+
     bool mbRunningLoopClosing;
 
     // Variables related to Global Bundle Adjustment
@@ -158,7 +153,7 @@ protected:
     bool mbStopGBA;
     std::mutex mMutexGBA;
     std::thread* mpThreadGBA;
-    
+
     //To ensure that GBA is done on the same map that has loop closure
     Map* mpMapGBA;
 

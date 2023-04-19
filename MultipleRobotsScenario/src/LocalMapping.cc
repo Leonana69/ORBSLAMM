@@ -38,8 +38,7 @@ LocalMapping::LocalMapping(Map* pMap, const float bMonocular)
     , mbStopRequested(false)
     , mbNotStop(false)
     , mbAcceptKeyFrames(true)
-{
-}
+{}
 
 void LocalMapping::SetLoopCloser(LoopClosing* pLoopCloser)
 {
@@ -53,7 +52,6 @@ void LocalMapping::SetTracker(Tracking* pTracker)
 
 void LocalMapping::Run()
 {
-
     mbFinished = false;
 
     while (1) {
