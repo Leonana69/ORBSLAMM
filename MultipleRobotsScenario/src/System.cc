@@ -337,6 +337,12 @@ void System::SaveTrajectoryTUM(const string& filename)
          << "Saving camera trajectory to " << filename << " ..." << endl;
 
     vector<KeyFrame*> vpKFs = mpMap->GetAllKeyFrames();
+
+    if (vpKFs.empty()) {
+        cerr << "ERROR: SaveTrajectoryTUM cannot be used before tracking." << endl;
+        return;
+    }
+
     sort(vpKFs.begin(), vpKFs.end(), KeyFrame::lId);
 
     // Transform all keyframes so that the first keyframe is at the origin.
@@ -399,6 +405,12 @@ void System::SaveKeyFrameTrajectoryTUM(const string& filename)
          << "Saving keyframe trajectory to " << filename << " ..." << endl;
 
     vector<KeyFrame*> vpKFs = mpMap->GetAllKeyFrames();
+
+    if (vpKFs.empty()) {
+        cerr << "ERROR: SaveKeyFrameTrajectoryTUM cannot be used before tracking." << endl;
+        return;
+    }
+
     sort(vpKFs.begin(), vpKFs.end(), KeyFrame::lId);
 
     // Transform all keyframes so that the first keyframe is at the origin.
@@ -436,6 +448,11 @@ void System::SaveTrajectoryKITTI(const string& filename)
          << "Saving camera trajectory to " << filename << " ..." << endl;
 
     vector<KeyFrame*> vpKFs = mpMap->GetAllKeyFrames();
+
+    if (vpKFs.empty()) {
+        cerr << "ERROR: SaveTrajectoryKITTI cannot be used before tracking." << endl;
+        return;
+    }
     sort(vpKFs.begin(), vpKFs.end(), KeyFrame::lId);
 
     // Transform all keyframes so that the first keyframe is at the origin.
