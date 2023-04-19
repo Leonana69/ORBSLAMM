@@ -54,6 +54,8 @@ public:
 
     void Release();
 
+    std::string GetMapViewerName();
+
 private:
     bool Stop();
 

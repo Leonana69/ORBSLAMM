@@ -435,15 +435,8 @@ void System::Shutdown()
         usleep(5000);
     }
 
-    //    char filename[25];
-    //    snprintf(filename,25,"Keyframe_Trajectory %d.txt",mpMap->mnId);
-    //    SaveKeyFrameTrajectoryTUM(filename);
-
     if (mpViewer->isRunning()) {
-        if (mbUseMMapping)
-            pangolin::BindToContext("ORBSLAMM: Map Viewer");
-        else
-            pangolin::BindToContext("ORB-SLAM2: Map Viewer");
+        pangolin::BindToContext(mpViewer->GetMapViewerName());
     }
 }
 

@@ -187,6 +187,11 @@ void Viewer::Run()
     SetFinish();
 }
 
+std::string Viewer::GetMapViewerName()
+{
+    return MapViewerName;
+}
+
 bool Viewer::isRunning()
 {
     return mbRunning;
