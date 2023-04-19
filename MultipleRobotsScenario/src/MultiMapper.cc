@@ -732,10 +732,10 @@ void MultiMapper::EraseMap(Map* pMap)
     mvMapAndKFDB.erase(mvMapAndKFDB.begin() + pMap->mnId);
 }
 
-vector<Map*> MultiMapper::GetAllMaps()
+vector<Map*> MultiMapper::GetAllMapsAndKeyFrameDatabase()
 {
     unique_lock<mutex> lock(mMutexMultiMapper);
-    return mvpMaps;
+    return mvMapAndKFDB;
 }
 
 void MultiMapper::SaveTrajectory(const string& filename)
