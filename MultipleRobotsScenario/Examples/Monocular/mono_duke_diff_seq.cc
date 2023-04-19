@@ -38,6 +38,8 @@ void ExecuteSLAM(int& start, int& nImages, iORB_SLAM::System& SLAM, vector<strin
 void RunSLAM1(int& start, int& nImages, iORB_SLAM::System& SLAM, vector<string>& vstrImageFilenames, vector<double>& vTimestamps);
 void RunSLAM2(int& start, int& nImages, iORB_SLAM::System& SLAM, vector<string>& vstrImageFilenames, vector<double>& vTimestamps);
 
+int iORB_SLAM::System::systemCount = 0;
+
 int main(int argc, char** argv)
 {
     if (argc < 7) {

@@ -63,7 +63,7 @@ public:
         MAP_EXISTS
     };
 
-    static int systemCount = 0;
+    static int systemCount;
 public:
     // Initialize the SLAM system. It launches the Local Mapping, Loop Closing and Viewer threads.
     //System(const string &strVocFile, const string &cameraSettingFile, const eSensor sensor, const bool bUseViewer = true);
