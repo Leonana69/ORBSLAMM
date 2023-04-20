@@ -1,0 +1,1 @@
+./mono_duke_diff_seq ../../Vocabulary/ORBvoc.txt ./iphone.yaml /duke_drone/iphone_1 ./iphone.yaml /duke_drone/iphone_2 1
