@@ -1,0 +1,1 @@
+./mono_kitti_dif-Seq ../../Vocabulary/ORBvoc.txt ./KITTI00-02.yaml /data_odometry_gray/dataset/sequences/00 1 /data_odometry_gray/dataset/sequences/07 ./KITTI04-12.yaml
