@@ -227,7 +227,7 @@ bool MultiMapper::DetectLoop()
                             if (bNoMore) {
                                 //cout<<"\tMM RANSAC Reaches Max\n";
                                 vbDiscarded[i] = true;
-                                pKF->SetErase();
+                                // pKF->SetErase();
                                 nCandidates--;
                             }
 
@@ -275,6 +275,8 @@ bool MultiMapper::DetectLoop()
                     }
 
                     if (!bMatch) {
+                        for (int i = 0; i < nKFs; i++)
+                            vpCandidateKFs[i]->SetErase();
                         pKeyFrame->SetErase();
                         continue;
                     }
@@ -315,11 +317,11 @@ bool MultiMapper::DetectLoop()
                             if (vpCandidateKFs[i] != mpMatchedKF)
                                 vpCandidateKFs[i]->SetErase();
 
-                        //If this map has been matched before and its pose is updated, update the unmatched map to the "global" pose
+                        // If this map has been matched before and its pose is updated, update the unmatched map to the "global" pose
                         if (pMap->isAttached() && !pMapBase->isAttached()) {
                             cout << "Swapping maps for merging..\n";
 
-                            //Swap Maps
+                            // Swap Maps
                             Map* t = pMap;
                             pMap = pMapBase;
                             pMapBase = t;
