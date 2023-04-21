@@ -514,8 +514,7 @@ void KeyFrame::SetBadFlag()
     
     {
         unique_lock<mutex> lock(mMutexConnections);
-        
-
+        unique_lock<mutex> lock1(mMutexFeatures);
         mConnectedKeyFrameWeights.clear();
         mvpOrderedConnectedKeyFrames.clear();
 
