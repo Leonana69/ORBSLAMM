@@ -40,13 +40,13 @@ void MultiMapper::Run()
     cout << "Initial Number of Maps is: " << mvMapAndKFDB.size() << endl;
     mbFinished = false;
     mbUpdatingMapPoses = false;
+
     while (1) {
         // Check if there are Maps in the queue
         if (hasCandidates()) {
             // Detect loop candidates and check covisibility consistency
             if (DetectLoop()) {
-                //                    cout<<"MM Loop Detected!\n";
-                //SaveTrajectory("MMaps.txt");
+                cout << "======> MM Loop Detected! <======\n";
             }
         }
 
@@ -629,7 +629,8 @@ void MultiMapper::ResetIfRequested()
 {
     unique_lock<mutex> lock(mMutexReset);
     if (mbResetRequested) {
-        mvMapAndKFDB.clear();
+        // we should not clear this map
+        // mvMapAndKFDB.clear();
         mbResetRequested = false;
     }
 }
