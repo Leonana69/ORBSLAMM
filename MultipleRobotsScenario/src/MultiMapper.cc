@@ -313,9 +313,9 @@ bool MultiMapper::DetectLoop()
                         //To prevent creating a new map or shutting down while MM is working on merging
                         mbUpdatingMapPoses = true;
 
-                        for (int i = 0; i < nKFs; i++)
-                            if (vpCandidateKFs[i] != mpMatchedKF)
-                                vpCandidateKFs[i]->SetErase();
+                        // for (int i = 0; i < nKFs; i++)
+                        //     if (vpCandidateKFs[i] != mpMatchedKF)
+                        //         vpCandidateKFs[i]->SetErase();
 
                         // If this map has been matched before and its pose is updated, update the unmatched map to the "global" pose
                         if (pMap->isAttached() && !pMapBase->isAttached()) {
@@ -376,8 +376,8 @@ bool MultiMapper::DetectLoop()
                         return true;
                     }
                     else {
-                        for (int i = 0; i < nKFs; i++)
-                            vpCandidateKFs[i]->SetErase();
+                        // for (int i = 0; i < nKFs; i++)
+                        //     vpCandidateKFs[i]->SetErase();
                         pKeyFrame->SetErase();
                         continue;
                     }
