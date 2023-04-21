@@ -432,6 +432,8 @@ void KeyFrame::EraseChild(KeyFrame* pKF)
 
 void KeyFrame::ChangeParent(KeyFrame* pKF)
 {
+    if (this == pKF)
+        return;
     unique_lock<mutex> lockCon(mMutexConnections);
     mpParent = pKF;
     pKF->AddChild(this);
@@ -503,12 +505,16 @@ void KeyFrame::SetBadFlag()
     for (map<KeyFrame *, int>::iterator mit = mConnectedKeyFrameWeights.begin(), mend = mConnectedKeyFrameWeights.end(); mit != mend; mit++)
         mit->first->EraseConnection(this);
 
-    for (size_t i = 0; i < mvpMapPoints.size(); i++)
-        if (mvpMapPoints[i])
-            mvpMapPoints[i]->EraseObservation(this);
+    {
+        unique_lock<mutex> lock1(mMutexFeatures);
+        for (size_t i = 0; i < mvpMapPoints.size(); i++)
+            if (mvpMapPoints[i])
+                mvpMapPoints[i]->EraseObservation(this);
+    }
+    
     {
         unique_lock<mutex> lock(mMutexConnections);
-        unique_lock<mutex> lock1(mMutexFeatures);
+        
 
         mConnectedKeyFrameWeights.clear();
         mvpOrderedConnectedKeyFrames.clear();
