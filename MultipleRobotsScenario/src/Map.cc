@@ -85,8 +85,7 @@ vector<KeyFrame*> Map::GetAllKeyFrames()
 
 vector<KeyFrame*> Map::MMGetAllKeyFrames()
 {
-    unique_lock<mutex> lock(mMutexMap);
-    vector<KeyFrame*> vpKFs = vector<KeyFrame*>(mspKeyFrames.begin(), mspKeyFrames.end());
+    vector<KeyFrame*> vpKFs = this->GetAllKeyFrames();
     if (this->isAttached()) {
         vector<Map*> vpAttachedMaps = this->getAttachedMaps();
         for (std::vector<Map *>::iterator it = vpAttachedMaps.begin(), itend = vpAttachedMaps.end(); it != itend; it++) {
@@ -120,8 +119,7 @@ vector<MapPoint*> Map::GetAllMapPoints()
 
 vector<MapPoint*> Map::MMGetAllMapPoints()
 {
-    unique_lock<mutex> lock(mMutexMap);
-    vector<MapPoint*> vpMP = vector<MapPoint*>(mspMapPoints.begin(), mspMapPoints.end());
+    vector<MapPoint*> vpMP = this->GetAllMapPoints();
     if (this->isAttached()) {
         vector<Map*> vpAttachedMaps = this->getAttachedMaps();
         for (std::vector<Map *>::iterator it = vpAttachedMaps.begin(), itend = vpAttachedMaps.end(); it != itend; it++) {

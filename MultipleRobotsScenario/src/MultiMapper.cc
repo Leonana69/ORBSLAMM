@@ -366,7 +366,7 @@ bool MultiMapper::DetectLoop()
                         pMap->attachToMap(pMapBase, mg2oScw);
                         pMapBase->attachToMap(pMap, mg2oScw.inverse());
 
-                        UpdatePosesAndAdd(pMap, pMapBase, mg2oScw, pKeyFrame);
+                        // UpdatePosesAndAdd(pMap, pMapBase, mg2oScw, pKeyFrame);
 
                         mbUpdatingMapPoses = false;
 
