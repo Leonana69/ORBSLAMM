@@ -25,34 +25,29 @@
 #include "MapPoint.h"
 #include "Map.h"
 
-#include<opencv2/core/core.hpp>
-#include<opencv2/features2d/features2d.hpp>
+#include <opencv2/core/core.hpp>
+#include <opencv2/features2d/features2d.hpp>
 
-#include<mutex>
+#include <mutex>
 
-
-namespace iORB_SLAM
-{
+namespace iORB_SLAM {
 
 class Tracking;
 class Viewer;
 
-class FrameDrawer
-{
+class FrameDrawer {
 public:
     FrameDrawer(Map* pMap);
 
     // Update info from the last processed frame.
-    void Update(Tracking *pTracker);
+    void Update(Tracking* pTracker);
     void SwitchMap(Map* pMap);
 
     // Draw last processed frame.
     cv::Mat DrawFrame();
 
 protected:
-
-    void DrawTextInfo(cv::Mat &im, int nState, cv::Mat &imText);
-    
+    void DrawTextInfo(cv::Mat& im, int nState, cv::Mat& imText);
 
     // Info of the frame to be drawn
     cv::Mat mIm;

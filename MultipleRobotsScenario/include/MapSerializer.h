@@ -25,7 +25,7 @@
  */
 
 #ifndef MAPSERIALIZER_H
-#define	MAPSERIALIZER_H
+#define MAPSERIALIZER_H
 
 #include <fstream>
 #include <vector>
@@ -35,61 +35,54 @@
 #include "MapPoint.h"
 
 #include "tinyxml.h"
-#include<opencv2/core/core.hpp>
+#include <opencv2/core/core.hpp>
 
-namespace iORB_SLAM
-{
-    class Map;
-    class KeyFrame;
-    class MapPoint;
-    
-    #define MAP_XML_ID "iORB-SLAM_Map"
-    #define MAP_VERSION "1.0"
-    
-class MapSerializer
-{
-    public:
-        enum MapStatus {
-            MAP_OK,
-            MAP_FAILED,
-            MAP_EXISTS
-        };
-        MapSerializer();
-        MapSerializer(Map* map);
-        MapSerializer(std::vector<Map*> maps);
-        ~MapSerializer();
-        
-        bool Init();
-    
-        MapStatus LoadMap(Map* pMap, std::string sMapFileName);
-        MapStatus SaveMap(Map* pMap, std::string folderName);
+namespace iORB_SLAM {
+class Map;
+class KeyFrame;
+class MapPoint;
 
-        MapStatus SaveMaps(std::vector<Map*> mvpMaps, std::string folderName);
-        MapStatus LoadMaps(std::string folderName);
+#define MAP_XML_ID "iORB-SLAM_Map"
+#define MAP_VERSION "1.0"
 
-private:    
-    bool _SaveAKeyFrame(KeyFrame* pKF, TiXmlElement* keyFramesNode );
-    bool _SaveKeyFrames(TiXmlElement* rootNode );
-    
-    bool _SaveAMapPoint(MapPoint* pMP, TiXmlElement* mapPointsNode );
-    bool _SaveMapPoints(TiXmlElement* rootNode );
-    
-    bool _LoadAKeyFrame(TiXmlHandle &hKF);
-    bool _LoadKeyFrames(TiXmlHandle &hRoot);
-    
-    bool _LoadAMapPoint(TiXmlHandle &hMP);
-    bool _LoadMapPoints(TiXmlHandle &hRoot);
-    
+class MapSerializer {
+public:
+    enum MapStatus {
+        MAP_OK,
+        MAP_FAILED,
+        MAP_EXISTS
+    };
+    MapSerializer();
+    MapSerializer(Map* map);
+    MapSerializer(std::vector<Map*> maps);
+    ~MapSerializer();
+
+    bool Init();
+
+    MapStatus LoadMap(Map* pMap, std::string sMapFileName);
+    MapStatus SaveMap(Map* pMap, std::string folderName);
+
+    MapStatus SaveMaps(std::vector<Map*> mvpMaps, std::string folderName);
+    MapStatus LoadMaps(std::string folderName);
+
+private:
+    bool _SaveAKeyFrame(KeyFrame* pKF, TiXmlElement* keyFramesNode);
+    bool _SaveKeyFrames(TiXmlElement* rootNode);
+
+    bool _SaveAMapPoint(MapPoint* pMP, TiXmlElement* mapPointsNode);
+    bool _SaveMapPoints(TiXmlElement* rootNode);
+
+    bool _LoadAKeyFrame(TiXmlHandle& hKF);
+    bool _LoadKeyFrames(TiXmlHandle& hRoot);
+
+    bool _LoadAMapPoint(TiXmlHandle& hMP);
+    bool _LoadMapPoints(TiXmlHandle& hRoot);
+
     Map* mpMap;
     std::vector<Map*> mvpMaps;
     bool mbOK;
     //std::mutex mMutexMapSerializer;
-        
-        
 };
-
 }
 
-
-#endif	/* MAPSERIALIZER_H */
-
+#endif /* MAPSERIALIZER_H */

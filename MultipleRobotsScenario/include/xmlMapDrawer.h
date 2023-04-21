@@ -27,30 +27,27 @@
 #ifndef XMLMAPDRAWER_H
 #define XMLMAPDRAWER_H
 
-#include"Map.h"
-#include"MapPoint.h"
-#include"KeyFrame.h"
-#include<pangolin/pangolin.h>
+#include "Map.h"
+#include "MapPoint.h"
+#include "KeyFrame.h"
+#include <pangolin/pangolin.h>
 
-#include<mutex>
+#include <mutex>
 
-namespace iORB_SLAM
-{
+namespace iORB_SLAM {
 
-class xmlMapDrawer
-{
+class xmlMapDrawer {
 public:
-    xmlMapDrawer(Map* pMap, const string &strMapFile);
+    xmlMapDrawer(Map* pMap, const string& strMapFile);
 
     void DrawMapPoints();
     void DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph);
-    void DrawCurrentCamera(pangolin::OpenGlMatrix &Twc);
-    void SetCurrentCameraPose(const cv::Mat &Tcw);
-    void SetReferenceKeyFrame(KeyFrame *pKF);
-    void GetCurrentOpenGLCameraMatrix(pangolin::OpenGlMatrix &M);
+    void DrawCurrentCamera(pangolin::OpenGlMatrix& Twc);
+    void SetCurrentCameraPose(const cv::Mat& Tcw);
+    void SetReferenceKeyFrame(KeyFrame* pKF);
+    void GetCurrentOpenGLCameraMatrix(pangolin::OpenGlMatrix& M);
 
 private:
-    
     Map* mpMap;
 
     float mKeyFrameSize;
@@ -67,6 +64,4 @@ private:
 
 } //namespace iORB_SLAM
 
-
 #endif /* XMLMAPDRAWER_H */
-
