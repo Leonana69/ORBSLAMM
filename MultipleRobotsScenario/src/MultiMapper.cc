@@ -275,8 +275,8 @@ bool MultiMapper::DetectLoop()
                     }
 
                     if (!bMatch) {
-                        for (int i = 0; i < nKFs; i++)
-                            vpCandidateKFs[i]->SetErase();
+                        // for (int i = 0; i < nKFs; i++)
+                        //     vpCandidateKFs[i]->SetErase();
                         pKeyFrame->SetErase();
                         continue;
                     }
