@@ -41,7 +41,6 @@ class KeyFrameDatabase;
 class KeyFrame {
 public:
     KeyFrame(Frame& F, Map* pMap, KeyFrameDatabase* pKFDB);
-    //    KeyFrame();
 
     // Pose functions
     void SetPose(const cv::Mat& Tcw);
@@ -129,12 +128,8 @@ public:
 
     Frame* getSourceFrame();
 
-    //Use FileStorage to write Keyframe to xml instead of TinyXml
-    //    void write(cv::FileStorage& fs) const;
-    //    void read(const cv::FileNode& node);
-
-    // The following variables are accesed from only 1 thread or never change (no mutex needed).
 public:
+    // The following variables are accesed from only 1 thread or never change (no mutex needed).
     static long unsigned int nNextId;
     long unsigned int mnId;
     const long unsigned int mnFrameId;
@@ -182,7 +177,7 @@ public:
     const std::vector<float> mvDepth; // negative value for monocular points
     const cv::Mat mDescriptors;
 
-    //BoW
+    // BoW
     DBoW2::BowVector mBowVec;
     DBoW2::FeatureVector mFeatVec;
 
@@ -206,8 +201,8 @@ public:
 
     Map* mpMap;
 
-    // The following variables need to be accessed trough a mutex to be thread safe.
 protected:
+    // The following variables need to be accessed trough a mutex to be thread safe.
     Frame* mpFrame;
 
     // SE3 Pose and camera center

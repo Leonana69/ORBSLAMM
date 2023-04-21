@@ -123,8 +123,7 @@ System::System(const string& strVocFile, const string& cameraSettingFile,
 
     // LoopClosing is done by MultiMapper
     // Initialize the Loop Closing thread and launch
-    mpLoopCloser = new LoopClosing(mpMap, mpKeyFrameDatabase, mpVocabulary,
-        mSensor != MONOCULAR);
+    mpLoopCloser = new LoopClosing(mpMap, mpKeyFrameDatabase, mpVocabulary, mSensor != MONOCULAR);
     mptLoopClosing = new thread(&iORB_SLAM::LoopClosing::Run, mpLoopCloser);
 
     // Initialize the Viewer thread and launch

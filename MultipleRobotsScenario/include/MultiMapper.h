@@ -85,8 +85,6 @@ protected:
 
     bool DetectLoop();
 
-    bool ComputeSim3();
-
     void SearchAndFuse(const KeyFrameAndPose& CorrectedPosesMap, Map* pMap);
 
     void MergeMaps(Map* pMap, Map* pMapBase);

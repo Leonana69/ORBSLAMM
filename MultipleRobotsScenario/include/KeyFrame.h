@@ -102,11 +102,11 @@ public:
     void SetBadFlag();
     bool isBad();
 
-    //This to prevent deleting the first keyframe in subsequent maps
+    // This to prevent deleting the first keyframe in subsequent maps
     void SetOtherMapFirst();
     bool isOtherMapFirst();
 
-    //When merged with other Maps only one first keyframe is fixed in GBA
+    // When merged with other Maps only one first keyframe is fixed in GBA
     void SetNotFixed();
     bool isNotFixed();
 
@@ -129,13 +129,8 @@ public:
     Frame* getSourceFrame();
 
     Map* GetMap();
-
-    //Use FileStorage to write Keyframe to xml instead of TinyXml
-    //    void write(cv::FileStorage& fs) const;
-    //    void read(const cv::FileNode& node);
-
-    // The following variables are accesed from only 1 thread or never change (no mutex needed).
 public:
+    // The following variables are accesed from only 1 thread or never change (no mutex needed).
     static long unsigned int nNextId;
     long unsigned int mnId;
     const long unsigned int mnFrameId;
@@ -183,7 +178,7 @@ public:
     const std::vector<float> mvDepth; // negative value for monocular points
     const cv::Mat mDescriptors;
 
-    //BoW
+    // BoW
     DBoW2::BowVector mBowVec;
     DBoW2::FeatureVector mFeatVec;
 
@@ -205,8 +200,8 @@ public:
     const int mnMaxY;
     const cv::Mat mK;
 
-    // The following variables need to be accessed trough a mutex to be thread safe.
 protected:
+    // The following variables need to be accessed trough a mutex to be thread safe.
     Frame* mpFrame;
 
     // SE3 Pose and camera center
@@ -241,7 +236,7 @@ protected:
     bool mbToBeErased;
     bool mbBad;
 
-    //In MultiMappig, when tracking is lost no resetting of mnId. This is used to prevent deleting the first Keyframe of each map.
+    // In MultiMappig, when tracking is lost no resetting of mnId. This is used to prevent deleting the first Keyframe of each map.
     bool mbOtherMapFirst;
 
     bool mbNotFixed;

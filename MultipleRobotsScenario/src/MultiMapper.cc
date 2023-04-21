@@ -76,16 +76,15 @@ bool MultiMapper::DetectLoop()
         // compare with all the following maps
         for (size_t iiM = iM + 1, iiendM = mvMapAndKFDB.size(); iiM < iiendM; iiM++) {
             Map* pMap;
-            std::vector<KeyFrame*> vpKeyFrames;
-
             {
                 unique_lock<mutex> lock(mMutexMapAndKFDB);
                 pMap = mvMapAndKFDB[iiM].first;
-                vpKeyFrames = pMap->GetAllKeyFrames();
             }
 
             mbMatchedBefore = false;
             mbSwapped = false;
+
+            // if map has been merged before, don't merge it again
             if (pMap->isAttachedToMap(pMapBase)) {
                 // TODO: fix this
                 continue;
@@ -98,7 +97,8 @@ bool MultiMapper::DetectLoop()
                     continue;
             }
 
-            // Don't match a map with less than 10 Keyframes
+            // don't match a map with less than 10 Keyframes
+            std::vector<KeyFrame*> vpKeyFrames = pMap->GetAllKeyFrames();
             if (vpKeyFrames.size() <= 10)
                 continue;
             else if (!pKFDB->empty()) {
@@ -168,13 +168,13 @@ bool MultiMapper::DetectLoop()
                     for (int i = 0; i < nKFs; i++) {
                         KeyFrame* pKF = vpCandidateKFs[i];
 
+                        // avoid that local mapping erase it while it is being processed in this thread
+                        pKF->SetNotErase();
+
                         if (pKF->isBad()) {
                             vbDiscarded[i] = true;
                             continue;
                         }
-
-                        // avoid that local mapping erase it while it is being processed in this thread
-                        pKF->SetNotErase();
 
                         int nmatches = matcher.SearchByBoW(pKeyFrame, pKF, vvpMapPointMatches[i]);
                         //pCurrentFrame->ComputeBoW();
@@ -183,7 +183,7 @@ bool MultiMapper::DetectLoop()
                         //int nmatches = matcher.SearchByBoW(pKF, *pCurrentFrame, vvpMapPointMatches[i]);
                         if (nmatches < 15) {
                             vbDiscarded[i] = true;
-                            pKF->SetErase();
+                            // pKF->SetErase();
                             continue;
                         }
                         else {
@@ -196,9 +196,8 @@ bool MultiMapper::DetectLoop()
                             Sim3Solver* pSolver = new Sim3Solver(pKeyFrame, pKF, vvpMapPointMatches[i], false);
                             pSolver->SetRansacParameters(0.99, 10, 300);
                             vpSim3Solvers[i] = pSolver;
-
-                            nCandidates++;
                         }
+                        nCandidates++;
                     }
 
                     // Alternatively perform some iterations of P4P RANSAC
@@ -711,8 +710,8 @@ void MultiMapper::AddMap(Map* pMap, KeyFrameDatabase* pKeyFrameDB)
         pMap->mnNxtId = mnMapCount + 1;
 
         //This to solve the addVertex error (Id is already registered)
-        //            long MaxKFID = mvpMaps.at(mnMapCount -1)->GetMaxKFid();
-        //            pMap->setMaxKFid(MaxKFID + pMap->GetMaxKFid() + 1);
+        long MaxKFID = mvMapAndKFDB.at(mnMapCount - 1).first->GetMaxKFid();
+        pMap->setMaxKFid(MaxKFID + pMap->GetMaxKFid() + 1);
     }
 
     MapAndKFDB mapKfDB = make_pair(pMap, pKeyFrameDB);
