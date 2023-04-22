@@ -162,7 +162,7 @@ void Viewer::Run()
         // show camera image  
         cv::Mat im = mpFrameDrawer->DrawFrame();
         cv::imshow(FrameWindowName, im);
-        cv::waitKey(mT);
+        cv::waitKey((int) mT);
 
         if (menuReset) {
             menuShowGraph = true;
